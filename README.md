@@ -31,19 +31,22 @@ Verifica PHP  version > 5.5.x)
 
 ### Configurazione Gateway
 
-Copiare le cartelle
-Generare i certificati per il gateway
-Configurare il file della libreria SAML
-Verificare il metadata
-Verificare la cartella di log
-Richiedere l'integrazione a FEDERA
+- Copiare le cartelle
+- Generare i certificati per il gateway
+- Configurare il file della libreria SAML
+- Verificare il metadata
+- Verificare la cartella di log
+- Richiedere l'integrazione a FEDERA
+- Abilitare DEBUG nel file di configurazione
 
 ### Configurazione del Client dei test (ed integrazione con il gateway)
 
-Creare il certificato per l'integrazione
-Copiare il certificato pubblico nella cartella del gateway
+- Creare il certificato per l'integrazione
+- Copiare il certificato pubblico nella cartella del gateway
+- Indicare l'indirizzo del gateway
 
 ### Configurazione per la produzione 
+- Impostare eventuale dati in index.php (home page gateway)
 
 Disabilitare il DEBUG!
 

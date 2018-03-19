@@ -96,7 +96,7 @@ if ($DEBUG_GATEWAY) { echo $b64_autenticationData_crypted; echo "<br>"; }
 
 $url2redirect = $landingPage. $JOIN_CHAR . 'authenticatedUser=' . $b64_autenticationData_crypted;
 
-if ($DEBUG_GATEWAY) { echo $url2redirect; echo "<br>"; echo "<a href=\"" . $url2redirect . "\">GO</a>"; }
+if ($DEBUG_GATEWAY) { echo $url2redirect; echo "<br>"; echo "<a href=\"" . $url2redirect . "\">FEDERA HA RISPOSTO RITORNO AL CLIENT</a>"; }
 else {
 	header('Location: ' . $url2redirect);
 }

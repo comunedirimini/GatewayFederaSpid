@@ -58,7 +58,7 @@ if ($DEBUG_GATEWAY) { echo $ts_out; echo "<br>"; }
 $url = $auth->login($ts_out,$params,false,false,true,true);   // Method that sent the AuthNRequest
 $lastRequestID = $auth->getLastRequestID();
 
-if ($DEBUG_GATEWAY) { echo $url; echo "<br>"; echo "<a href=\"" . $url . "\">GO</a>"; }
+if ($DEBUG_GATEWAY) { echo $url; echo "<br>"; echo "<a href=\"" . $url . "\">PREPARATO SAML VAI A FEDERA</a>"; }
 else {
 	header('Pragma: no-cache');
 	header('Cache-Control: no-cache, must-revalidate');

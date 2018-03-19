@@ -3,15 +3,24 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "<pre>";
-$ts = date("YmdHis", time() - date("Z"));
+// PAGINA DI DEFAULT PER IL CONSUMO DELLE CREDENZIALI
+$landingPage = "http://pmlab.comune.rimini.it/federa/client/landing.php";
 
+
+echo "<pre>";
+
+echo "<h1>Client test gateway</h1>";
+echo "<br>";
+echo "Url landingPage:" . $landingPage;
+echo "<br>";
+echo "<h2>Test cifratura</h2>";
+
+
+$ts = date("YmdHis", time() - date("Z"));
 
 include('Base64Url.php');
 
 $b64url = new Base64Url\Base64Url;
-
-$landingPage = "http://pmlab.comune.rimini.it/federa/client/landing.php";
 
 
 $ts = $ts . ";" . $landingPage;
