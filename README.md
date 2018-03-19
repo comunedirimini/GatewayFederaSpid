@@ -22,18 +22,64 @@ Libreria per encode/decode base64 di url
 (https://github.com/Spomky-Labs/base64url)
 
 
-gestione del LOG
+#### gestione del LOG (TODO)
 
-### Installazione
+### Installazione e configurazione Gateway
 
-Verifica PHP  version > 5.5.x)
-	php -v 
+- Verificare la versione PHP
 
-### Configurazione Gateway
+	La vesione deve essere > 5.5.x
+	php -v
 
-- Copiare le cartelle
+- File e cartelle
+
+	Nelle cartella di root del gateway bisogna copiare i seguenti files:
+
+	index.php (vuoto - home page descrittiva gateway)
+	auth.php 
+	response.php
+	metadata.php
+
 - Generare i certificati per il gateway
+	Creare una cartella non accessibile dal server web e generare i certificati con il seguente comando
+	openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
+
+- Scaricare e copiare la libreria OneLogin's SAML PHP Toolkit
+
+	Scaricare la libreria in una cartella accessibile dal server web ad es: root/lib/php-saml
+
+	Copiare i file
+	Riportare il percorso per la configurazione finale
+
+- PATH alla libreria per asserzioni multiple
+
+- Scaricare e copiare la libreria Base64Url
+
+	Scaricare la libreria in una cartella accessibile dal server web ad es: root/lib/base64url
+	Copiare i file
+	Riportare il percorso per la configurazione finale
+
+- Scaricare e copiare la libreria LOG (TODO)
+
 - Configurare il file della libreria SAML
+
+	creare la cartelle /config
+	creare un file "config.php" così fatto
+
+		<?php
+
+			$DEBUG_GATEWAY = true; // abilita il debug
+			$PHP_SAML_LIB_PATH = 'PATH_TO/php-saml-2.13.0/';
+			$LOG_FILE_LIB_PATH = 'PATH_TO/log.php';
+			$BASE64URL_LIB_PATH = 'PATH_TO/Base64Url.php';
+			$LOG_FILE = 'PATH_TO/log.txt';
+			// cartella dove sono presenti i certificati di autorizzazione dei client
+			$CERT_PATH = 'PATH_TO/certs/';
+		?>
+
+
+
+
 - Verificare il metadata
 - Verificare la cartella di log
 - Richiedere l'integrazione a FEDERA
@@ -75,6 +121,7 @@ SICUREZZA
 
 verifica del securityToken 
 
+	-
 	- id
 	- verifica della firma
 	- timeStamp NON scaduto
