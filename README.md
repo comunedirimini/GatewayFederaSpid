@@ -1,9 +1,28 @@
 # Gateway Federa Spid - Comune di Rimini
-## Gateway di autenticazione ...
+## Gateway di autenticazione Federa/SPID
 
+Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e la reale implementazione ed interfacciamento
+con il provider di identità digitali (IdP).
+
+Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e restituire all' SP solo i dati dell'eventuale utente autenticato.
+
+La sicurezza tra il SP ed il Gateway è garantita da una comunicazione PKCS (Crittografia a chiave pubblica).
+
+
+Librerie utilizzate
 
 Libreria PHP https://github.com/onelogin/php-saml/blob/master/lib/Saml2/Auth.php
 patch multi asserzione Saml + SHA1 encryption
+
+
+https://github.com/Spomky-Labs/base64url/blob/master/src/Base64Url.php
+
+
+
+Installazione
+
+
+Generazione dei certificati
 
 
 auth.php richiesta gw
@@ -116,12 +135,6 @@ Applicazione del framework con reingegnerizzazione del procedimento:
 
 - Work in progress... [documentazione](https://github.com/paulodiff/istanzedigitali/wiki)
 
-## Screenshot
-
-[![Schermata demo 1](http://pmlab.comune.rimini.it/FORUMPA1.PNG)]
-[![Schermata demo 2](http://pmlab.comune.rimini.it/FORUMPA2.PNG)]
-[![Schermata demo 3](http://pmlab.comune.rimini.it/FORUMPA3.PNG)]
-[![Schermata demo 4](http://pmlab.comune.rimini.it/FORUMPA4.PNG)]
 
 
 # Caratteristiche
