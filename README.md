@@ -28,21 +28,23 @@ Libreria per encode/decode base64 di url
 
 - Verificare la versione PHP
 
-	La vesione deve essere > 5.5.x
-	php -v
+	La versione deve essere > 5.5.x
+	- php -v
 
 - File e cartelle
 
 	Nelle cartella di root del gateway bisogna copiare i seguenti files:
 
-	index.php (vuoto - home page descrittiva gateway)
-	auth.php 
-	response.php
-	metadata.php
+	- index.php (vuoto - home page descrittiva gateway)
+	- auth.php 
+	- response.php
+	- metadata.php
 
 - Generare i certificati per il gateway
+
 	Creare una cartella non accessibile dal server web e generare i certificati con il seguente comando
-	openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
+	
+		openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
 
 - Scaricare e copiare la libreria OneLogin's SAML PHP Toolkit
 
@@ -63,8 +65,9 @@ Libreria per encode/decode base64 di url
 
 - Configurare il file della libreria SAML
 
-	creare la cartelle /config
-	creare un file "config.php" così fatto
+	- creare la cartelle /config
+	- creare un file "config.php" così fatto
+
 
 		<?php
 
