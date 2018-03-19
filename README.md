@@ -6,20 +6,29 @@ con il provider di identità digitali (IdP).
 
 Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e restituire all' SP solo i dati dell'eventuale utente autenticato.
 
-La sicurezza tra il SP ed il Gateway è garantita da una comunicazione PKCS (Crittografia a chiave pubblica).
+La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard PKCS (https://en.wikipedia.org/wiki/PKCS)
+
+Il gateway è stato sviluppato in linguaggio PHP.
+
+###Librerie utilizzate
+
+OneLogin's SAML PHP Toolkit
+https://github.com/onelogin/php-saml
+> patch multi asserzione Saml + SHA1 encryption
+
+Base64 Url Safe
+https://github.com/Spomky-Labs/base64url
 
 
-Librerie utilizzate
+gestione del LOG
 
-Libreria PHP https://github.com/onelogin/php-saml/blob/master/lib/Saml2/Auth.php
-patch multi asserzione Saml + SHA1 encryption
-
-
-https://github.com/Spomky-Labs/base64url/blob/master/src/Base64Url.php
+###Installazione
 
 
+###Normativa
 
-Installazione
+http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
+
 
 
 Generazione dei certificati
