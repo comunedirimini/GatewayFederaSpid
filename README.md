@@ -10,22 +10,42 @@ La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata 
 
 Il gateway è stato sviluppato in linguaggio PHP.
 
-###Librerie utilizzate
+### Librerie utilizzate
 
-OneLogin's SAML PHP Toolkit
-https://github.com/onelogin/php-saml
+#### OneLogin's SAML PHP Toolkit
+(https://github.com/onelogin/php-saml)
+Libreria per la gestione SAML
 > patch multi asserzione Saml + SHA1 encryption
 
-Base64 Url Safe
-https://github.com/Spomky-Labs/base64url
+#### Base64 Url Safe
+Libreria per encode/decode base64 di url
+(https://github.com/Spomky-Labs/base64url)
 
 
 gestione del LOG
 
-###Installazione
+### Installazione
 
+Verifica PHP  version > 5.5.x)
+	php -v 
 
-###Normativa
+### Configurazione Gateway
+
+Copiare le cartelle
+Generare i certificati per il gateway
+Configurare il file della libreria SAML
+Verificare il metadata
+Verificare la cartella di log
+Richiedere l'integrazione a FEDERA
+
+### Configurazione del Client dei test (ed integrazione con il gateway)
+
+Creare il certificato per l'integrazione
+Copiare il certificato pubblico nella cartella del gateway
+
+### Configurazione per la produzione 
+
+Disabilitare il DEBUG!
 
 http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 
@@ -67,14 +87,12 @@ LOG
 	tutto
 
 
-openssl req -new -x509 -days 3652 -nodes -out gwAuthPublic.crt -keyout gwAuthPrivate.pem
+openssl req -new -x509 -days 3652 -nodes -out public.crt -keyout private.pem
 
 
 ### FINE DOCUMENTO
 
 
-
-> Il presente progetto è stato premiato a Forum PA 2017 di Roma - [link alla notizia](http://www.chiamamicitta.it/piccoli-procedimenti-crescono-comune-rimini-premiato-forum-pa-roma/)
 
 ## Descrizione
 
