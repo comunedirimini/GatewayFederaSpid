@@ -15,9 +15,12 @@ Il gateway è stato sviluppato in linguaggio PHP.
 #### OneLogin's SAML PHP Toolkit
 (https://github.com/onelogin/php-saml)
 Libreria per la gestione SAML
-> patch multi asserzione Saml + SHA1 encryption
+Alla libreria verrà applicata una patch per asserzioni multiple. Le indicazioni più avanti nel documento.
+> Note: patch multi asserzione Saml + SHA1 encryption
 
 #### Base64 Url Safe
+* [Base64UrlSafe](https://github.com/Spomky-Labs/base64url) - The web framework used
+generate RSS Feeds
 Libreria per encode/decode base64 di url
 (https://github.com/Spomky-Labs/base64url)
 
@@ -44,9 +47,11 @@ Libreria per encode/decode base64 di url
 
 	Creare una cartella non accessibile dal server web e generare i certificati con il seguente comando
 	
-		openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
+```
+openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
+```
 
-- Scaricare e copiare la libreria OneLogin's SAML PHP Toolkit
+- Scaricare e copiare la libreria OneLogin's SAML PHP Toolkit 
 
 	Scaricare la libreria in una cartella accessibile dal server web ad es: root/lib/php-saml
 
@@ -68,25 +73,34 @@ Libreria per encode/decode base64 di url
 	- creare la cartelle /config
 	- creare un file "config.php" così fatto
 
-
-		<?php
-
-			$DEBUG_GATEWAY = true; // abilita il debug
-			$PHP_SAML_LIB_PATH = 'PATH_TO/php-saml-2.13.0/';
-			$LOG_FILE_LIB_PATH = 'PATH_TO/log.php';
-			$BASE64URL_LIB_PATH = 'PATH_TO/Base64Url.php';
-			$LOG_FILE = 'PATH_TO/log.txt';
-			// cartella dove sono presenti i certificati di autorizzazione dei client
-			$CERT_PATH = 'PATH_TO/certs/';
-		?>
-
-
-
+```
+<?php
+	$DEBUG_GATEWAY = true; // abilita il debug
+	$PHP_SAML_LIB_PATH = 'PATH_TO/php-saml-2.13.0/';
+	$LOG_FILE_LIB_PATH = 'PATH_TO/log.php';
+	$BASE64URL_LIB_PATH = PATH_TO/Base64Url.php';
+	$LOG_FILE = 'PATH_TO/log.txt';
+	// cartella dove sono presenti i
+	certificati di autorizzazione dei client
+	$CERT_PATH = 'PATH_TO/certs/';
+?>
+```
 
 - Verificare il metadata
+
+	Aprire il browser e aprirlo alla pagina metadata.php
+
 - Verificare la cartella di log
+
 - Richiedere l'integrazione a FEDERA
+
 - Abilitare DEBUG nel file di configurazione
+
+	Nel file config/config.php impostare:
+	
+```
+$DEBUG_GATEWAY = true; // abilita il debug
+```
 
 ### Configurazione del Client dei test (ed integrazione con il gateway)
 
