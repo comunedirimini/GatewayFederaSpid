@@ -1,11 +1,17 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// include('./config/config.php');
+
+if ($DEBUG_GATEWAY) {
+	error_reporting(E_ALL);
+	ini_set('display_errors', '1');
+}
+
+require __DIR__ . '/vendor/autoload.php';
 
 // libreria SAML
-define("TOOLKIT_PATH", $PHP_SAML_LIB_PATH);
-require_once(TOOLKIT_PATH . '_toolkit_loader.php');
+// define("TOOLKIT_PATH", $PHP_SAML_LIB_PATH);
+// require_once(TOOLKIT_PATH . '_toolkit_loader.php');
 
 try {
     $auth = new OneLogin_Saml2_Auth();
