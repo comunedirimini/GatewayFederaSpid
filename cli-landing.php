@@ -18,7 +18,7 @@ echo $authenticatedUser; echo "<br>";
 $authenticatedUser_decoded =  Base64Url::decode($authenticatedUser);
 echo $authenticatedUser_decoded; echo "<br>";
 
-$fp=fopen("./certs/private.pem","r") or die('ERROR: private certificate not found!');
+$fp=fopen("./cli_certs/private.pem","r") or die('ERROR: private certificate not found!');
 $private_key_string=fread($fp,8192);
 fclose($fp);
 

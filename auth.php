@@ -2,23 +2,20 @@
 
 include('./config/config.php');
 
+require __DIR__ . '/vendor/autoload.php';
+use Base64Url\Base64Url;
+use Monolog\Logger;
+use Monolog\Handler\RotatingFileHandler;
+
+// create a log channel
+$log = new Logger('gw');
+$log->pushHandler(new RotatingFileHandler($LOG_FILE,0,Logger::DEBUG));
+
+
 if ($DEBUG_GATEWAY) {
 	error_reporting(E_ALL);
 	ini_set('display_errors', '1');
 }
-
-// libreria log
-include($LOG_FILE_LIB_PATH);
-$Mylog = new Log($LOG_FILE);
-
-// libreria SAML
-define("TOOLKIT_PATH", $PHP_SAML_LIB_PATH);
-require_once(TOOLKIT_PATH . '_toolkit_loader.php');
-
-
-// libreria Base64Url
-include($BASE64URL_LIB_PATH);
-$b64url = new Base64Url\Base64Url;
 
 
 $auth = new OneLogin_Saml2_Auth(); 
@@ -39,7 +36,7 @@ if ($DEBUG_GATEWAY) { echo current(array_keys($getPar)); echo "<br>"; echo $getP
 
 $b64_ts_crypted = $getPar[$key];
 
-$ts_crypted_out = $b64url->decode($b64_ts_crypted);
+$ts_crypted_out = Base64Url::decode($b64_ts_crypted);
 
 $crtFile = $CERT_PATH . $key . '.crt';
 
@@ -57,6 +54,9 @@ if ($DEBUG_GATEWAY) { echo $ts_out; echo "<br>"; }
 
 $url = $auth->login($ts_out,$params,false,false,true,true);   // Method that sent the AuthNRequest
 $lastRequestID = $auth->getLastRequestID();
+
+
+$log->info('auth:'. $lastRequestID . ':' . $ts_out);
 
 if ($DEBUG_GATEWAY) { echo $url; echo "<br>"; echo "<a href=\"" . $url . "\">PREPARATO SAML VAI A FEDERA</a>"; }
 else {

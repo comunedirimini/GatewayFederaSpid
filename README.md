@@ -78,20 +78,24 @@ openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.p
 copiare settings_example.php in settings.php
 
 Configurare la parte sp (service provider)
-
+```
 'entityId' : url gateway in fase di registrazione
-
 'assertionConsumerService'->'url' : url della pagina di risposta del gateway
 
+...
+
 'singleLogoutService' -> 'url' : url della pagina di logout
+```
 
 copiare in forma di stringa i certificati generati per il gateway
 
+```
 'x509cert' => 'MII...hDM=', // gw_public.crt
 'privateKey' => 'MII ...qug==', // gw_private.pem
+```
 
+Sezione di configurazione sp completa:
 
-Modificare
 ```
 // Service Provider Data that we are deploying
     'sp' => array (
@@ -142,8 +146,8 @@ Modificare
 
         // Usually x509cert and privateKey of the SP are provided by files placed at
         // the certs folder. But we can also provide them with the following parameters
-        'x509cert' => 'MII...hDM=',
-        'privateKey' => 'MII ...qug==',
+        'x509cert' => 'MII...hDM=', // gw_public.crt
+        'privateKey' => 'MII ...qug==', // gw_private.pem
 
         /*
          * Key rollover
@@ -219,6 +223,80 @@ I dati sono già pronti per FEDERA TEST
     ),
 
 ```
+Copiare il file advanced_settings_example.php in advanced_settings.php
+
+la voce signatureAlgorithm va impostata come segue anche se non è consigliato
+
+```
+'signatureAlgorithm' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
+```
+
+### PATCH saml:Advice per libreria SAML
+Le asserzioni multiple in risposta non sono gestite dalla librerie e per questo è necessario applicare una patch qui descritta :
+
+https://github.com/onelogin/php-saml/pull/113/commits/d99a2bcfb7866a3bca2d9b9eaab130ac0fd0abda
+
+Bisogna modificare il file php-saml-2.13.0/lib/Saml2/Response.php
+nella function validateNumAssertions 
+in questo modo:
+
+```
+/**
+     * Verifies that the document only contains a single Assertion (encrypted or not).
+     *
+     * @return bool TRUE if the document passes.
+     */
+    public function validateNumAssertions()
+    {
+
+
+	// PATCH ADVICE
+	// https://github.com/onelogin/php-saml/pull/113/commits/d99a2bcfb7866a3bca2d9b9eaab130ac0fd0abda
+
+	/********
+        $encryptedAssertionNodes = $this->document->getElementsByTagName('EncryptedAssertion');
+        $assertionNodes = $this->document->getElementsByTagName('Assertion');
+
+        $valid = $assertionNodes->length + $encryptedAssertionNodes->length == 1;
+
+        if ($this->encrypted) {
+            $assertionNodes = $this->decryptedDocument->getElementsByTagName('Assertion');
+            $valid = $valid && $assertionNodes->length == 1;
+        }
+
+        return $valid;
+	*/
+
+
+
+	$encryptedAssertionNodesLength = 0;
+	$assertionNodesLength = 0;
+
+        foreach ($this->document->getElementsByTagName('EncryptedAssertion') as $node) {
+            if($node->parentNode->localName !== 'Advice') {
+                $encryptedAssertionNodesLength++;
+            }
+        }
+
+        foreach ($this->document->getElementsByTagName('Assertion') as $node) {
+            if($node->parentNode->localName !== 'Advice') {
+                $assertionNodesLength++;
+            }
+        }
+
+        return ($assertionNodesLength + $encryptedAssertionNodesLength == 1);
+
+
+    }
+
+```
+
+### Verifica del file METADATA
+
+A questo punto è possibile verificare il file metadati generato accedendo alla seguente url :
+https://GATEWAY_URL/metadata.php
+
+
 
 
 - Scaricare e copiare la libreria LOG (TODO)

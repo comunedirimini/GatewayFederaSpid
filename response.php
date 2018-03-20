@@ -7,17 +7,16 @@ if ($DEBUG_GATEWAY) {
 
 include('./config/config.php');
 
-// libreria log
-include($LOG_FILE_LIB_PATH);
-$Mylog = new Log($LOG_FILE);
+require __DIR__ . '/vendor/autoload.php';
+use Base64Url\Base64Url;
 
-// libreria SAML
-define("TOOLKIT_PATH", $PHP_SAML_LIB_PATH);
-require_once(TOOLKIT_PATH . '_toolkit_loader.php');
+use Monolog\Logger;
+use Monolog\Handler\RotatingFileHandler;
 
-// libreria Base64Url
-include($BASE64URL_LIB_PATH);
-$b64url = new Base64Url\Base64Url;
+// create a log channel
+$log = new Logger('gw');
+$log->pushHandler(new RotatingFileHandler($LOG_FILE,0,Logger::DEBUG));
+
 
 $auth = new OneLogin_Saml2_Auth();
 
@@ -75,10 +74,13 @@ $autenticationData = $autenticationData . ";" . $attributesArray['statoNascita']
 
 if ($DEBUG_GATEWAY) { print_r($attributesArray); echo "<br>"; echo $autenticationData; echo "<br>"; }
 
+
+$log->info('resp:'. $key . ':' . $autenticationData);
+
+
 $crtFile = $CERT_PATH . $key . '.crt';
 
 echo $crtFile; echo "<br>";
-
 
 $fp=fopen($crtFile,"r") or die("R_ERROR3");
 $public_key_string=fread($fp,8192);
@@ -91,7 +93,7 @@ if(!openssl_public_encrypt($autenticationData,$autenticationData_crypted,$public
 	die("R_ERROR4");
 }
 
-$b64_autenticationData_crypted =  $b64url->encode($autenticationData_crypted);
+$b64_autenticationData_crypted =  Base64Url::encode($autenticationData_crypted);
 if ($DEBUG_GATEWAY) { echo $b64_autenticationData_crypted; echo "<br>"; }
 
 $url2redirect = $landingPage. $JOIN_CHAR . 'authenticatedUser=' . $b64_autenticationData_crypted;
