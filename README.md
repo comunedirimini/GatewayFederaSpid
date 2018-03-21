@@ -8,28 +8,8 @@ La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata 
 
 Il gateway è stato sviluppato in linguaggio PHP.
 
-![Alt text](https://g.gravizo.com/svg?
-digraph G {
-    aize ="4,4";
-    main [shape=box];
-    main -> parse [weight=8];
-    parse -> execute;
-    main -> init [style=dotted];
-    main -> cleanup;
-    execute -> { make_string; printf}
-    init -> make_string;
-    edge [color=red];
-    main -> printf [style=bold,label="100 times"];
-    make_string [label="make a string"];
-    node [shape=box,style=filled,color=".7 .3 1.0"];
-    execute -> compare;
-  }
-)
 
-
-
-
-![Alt texts](https://g.gravizo.com/svg?@startuml;actor User;participant "First Class" as A;participant "Second Class" as B;participant Last Class" as C;User -> A: DoWork;activate A;A -> B: Create Request;activate B;B -> C: DoWork;activate C;C --> B: orkDone;destroy C;B --> A: Request Created;deactivate B;A --> User: Done;deactivate A;@enduml'>
+![Grafico](https://g.gravizo.com/svg?@startuml;participant%20%22App01%22%20as%20A;participant%20%22Gateway%22%20as%20B;participant%20%22FEDERA/SPID%22%20as%20C;A%20-%3E%20B:%20Request%20Encrypted;activate%20B;B%20-%3E%20C:%20SAML%20Request;activate%20C;C%20--%3E%20B:%20SAML%20Response;deactivate%20C;B%20--%3E%20A:%20Response%20Encryoted;deactivate%20B;@enduml)
 
 ### Librerie utilizzate
 
@@ -315,6 +295,11 @@ https://GATEWAY_URL/metadata.php
 
 Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 
+#### Configurazione per la produzione e personalizzazione
+
+- Disabilitare il DEBUG
+- Impostare eventuale dati in index.php (home page gateway)
+
 ### Configurazione del Client per l'integrazione con il gateway
 
 Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. Il metodo di sicurezza utilizzato è quello a chiave pubblica/privata (PKI). Viene generata sul gateway una coppia di chiavi; la chiave privata viene consegnata al client per cifrare le richieste di autenticazione e la chiave pubblica viene consegnata al server per decifrare le richieste e cifrare le risposte di autenticazione.
@@ -333,7 +318,7 @@ openssl req -new -x509 -days 3652 -nodes -out app01.crt -keyout app01.pem
 
 La chiave app01.pem viene consegnata la client
 
-La chieva app01.crt viene memorizzata nella cartella indicata da:
+La chiave app01.crt viene memorizzata nella cartella indicata da:
 
 ```	
 $CERT_PATH = 'PATH_TO/certs/';
@@ -367,11 +352,11 @@ Il codice PHP per la generazione del parametro:
 $landingPage = "http://app01/auth-landing.php";
 $ts = date("YmdHis", time() - date("Z"));
 
-$fp=fopen("app01.pem","r")
+$fp=fopen("app01.pem","r");
 $private_key_string=fread($fp,8192);
 fclose($fp);
 
-openssl_private_encrypt($ts . ";" . $landingPage;,$ts_crypted,$private_key_string);
+openssl_private_encrypt($ts . ";" . $landingPage,$ts_crypted,$private_key_string);
 
 $b64_ts_crypted =  Base64Url::encode($ts_crypted);
 
@@ -379,63 +364,48 @@ $gwURL = "https://GATEWAY_URL?auth.php?app01=" . $b64_ts_crypted;
 ```					
 
 
-
 #### Client modalità di gestione della risposta di autenticazione
 
-- Creare il certificato per l'integrazione
-- Copiare il certificato pubblico nella cartella del gateway
-- Indicare l'indirizzo del gateway
+Una volta richiamato il gateway, l'autenticazione procederà verso FEDERA o SPID a seconda della scelta e terminerà verso la url del client valorizzata nei parametri di richiesta.
 
-### Configurazione per la produzione e personalizzazione
+Seguendo l'esempio di app01, ad autenticazione termina il gateway invierà una risposta al service provider come qui di seguito:
 
-- Disabilitare il DEBUG
-- Impostare eventuale dati in index.php (home page gateway)
+```
+http://app01/auth-landing.php?authenticatedUser=r5nb4.....W0CppJ
+```
 
+Il parametro authenticatedUser è cifrato con il certificato pubblico del client e contiene una stringa con le informazioni dell'utente che si è autenticato.
+Il formato della stringa con i dati è in questo formato:
 
+```
+authenticationMethod;authenticatingAuthority;policyLevel;trustLevel;userid;CodiceFiscale;nome;cognome;dataNascita;luogoNascita;statoNascita
+```
+
+Il codice PHP per la decifrare il parametro:
+
+```
+$authenticatedUser = $_GET['authenticatedUser'];
+$authenticatedUser_decoded =  Base64Url::decode($authenticatedUser);
+
+$fp=fopen("app01.pem","r");
+$private_key_string=fread($fp,8192);
+fclose($fp);
+
+openssl_private_decrypt($authenticatedUser_decoded, $authenticatedUser_decrypted, $private_key_string)
+
+$authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
+```
 
 ### Link alla normativa
 
 http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 
 
+#### Alcune note sulla sicurezza
 
-Generazione dei certificati
+- verifica del ts
+- firewall che permette connessioni solo da origini autorizzate
 
+# Informazioni
 
-auth.php richiesta gw
-response.php risposta gw
-/metadata/index.php (url da comunicare /metadata per i metadata)
-
-
-Parametri per il cliente
-
-GET 
-
-landingPage="pagina a cui verrà terminata la richiesta dal gw FEDERA"
-serviceId ="Identificativo Servizio"
-securityToken = Timestamp firmato con la chiave privata
-
-
-SICUREZZA
-
-verifica del securityToken 
-
-	-
-	- id
-	- verifica della firma
-	- timeStamp NON scaduto
-
-
-Ritorno
-
-a landingPage con tutti i parametri autenticati e security token
-
-
-LOG
-
-	tutto
-
-
-openssl req -new -x509 -days 3652 -nodes -out public.crt -keyout private.pem
-
-
+Ruggero Ruggeri - Comune di Rimini - ruggero.ruggeri@comune.rimini.it - 0541 704607
