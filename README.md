@@ -49,9 +49,10 @@ openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.p
 
 #### Configurazione SAML
 
-Nella cartella wwwroot/vendor/onelogin/php-saml/ copiare settings_example.php in settings.php
+Nella cartella *wwwroot/vendor/onelogin/php-saml/* copiare settings_example.php in settings.php
 
-Configurare la parte sp (service provider)
+> Configurare la parte sp (service provider)
+
 ```
 'entityId' : url gateway in fase di registrazione
 'assertionConsumerService'->'url' : url della pagina di risposta del gateway
@@ -68,7 +69,7 @@ copiare in forma di stringa i certificati generati per il gateway
 'privateKey' => 'MII ...qug==', // gw_private.pem
 ```
 
-Sezione di configurazione sp completa:
+> Sezione di configurazione sp completa:
 
 ```
 // Service Provider Data that we are deploying
@@ -135,7 +136,7 @@ Sezione di configurazione sp completa:
 
 ```
 
-configurare la parte Idp
+> Configurare la parte Idp
 
 I dati sono già pronti per FEDERA TEST
 
@@ -199,7 +200,7 @@ I dati sono già pronti per FEDERA TEST
 ```
 Nella cartella *wwwroot/vendor/onelogin/php-saml/* copiare il file *advanced_settings_example.php* in *advanced_settings.php*
 
-la voce signatureAlgorithm va impostata come segue anche se non è consigliato:
+la voce *signatureAlgorithm* va impostata come segue anche se non è consigliato:
 
 ```
 'signatureAlgorithm' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
@@ -269,9 +270,7 @@ Creare la cartella nella *wwroot/config* e creare il file config.php in questo m
 ```
 <?php
 	$DEBUG_GATEWAY = true; // abilita il debug
-	$LOG_FILE = 'PATH_TO/gw.log';
-	// cartella dove sono presenti i
-	certificati di autorizzazione dei client
+	$LOG_FILE = 'PATH_TO/gw.log'; // cartella dove sono presenti i certificati di integrazione dei client
 	$CERT_PATH = 'PATH_TO/certs/';
 ?>
 ```
