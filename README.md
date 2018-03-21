@@ -9,7 +9,7 @@ La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata 
 Il gateway è stato sviluppato in linguaggio PHP.
 
 
-![Grafico](https://g.gravizo.com/svg?@startuml;participant%20%22App01%22%20as%20A;participant%20%22Gateway%22%20as%20B;participant%20%22FEDERA/SPID%22%20as%20C;A%20-%3E%20B:%20Request%20Encrypted;activate%20B;B%20-%3E%20C:%20SAML%20Request;activate%20C;C%20--%3E%20B:%20SAML%20Response;deactivate%20C;B%20--%3E%20A:%20Response%20Encryoted;deactivate%20B;@enduml)
+![Grafico](https://g.gravizo.com/svg?@startuml;participant%20%22App01%22%20as%20A;participant%20%22Gateway%22%20as%20B;participant%20%22FEDERA/SPID%22%20as%20C;A%20-%3E%20B:%20Request%20Encrypted;activate%20B;B%20-%3E%20C:%20SAML%20Request;activate%20C;C%20--%3E%20B:%20SAML%20Response;deactivate%20C;B%20--%3E%20A:%20Response%20Encrypted;deactivate%20B;@enduml)
 
 ### Librerie utilizzate
 
@@ -19,7 +19,7 @@ Il gateway è stato sviluppato in linguaggio PHP.
 
 ### Installazione e configurazione Gateway
 
-Da ora in avanti indicherò come wwwroot la cartella di installazione del gateway
+Da ora in avanti indicherò come *wwwroot* la cartella di installazione del gateway
 
 #### Verificare la versione PHP. La versione deve essere > 5.5.x
 
