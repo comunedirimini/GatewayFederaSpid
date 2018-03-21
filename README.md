@@ -1,4 +1,4 @@
-# Gateway di autenticazione Federa Spid - Comune di Rimini
+# Gateway di autenticazione Federa Spid - Comune di Rimini (BOZZA)
 
 Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e l'implementazione dell'interfacciamento con il provider di identità digitali (IdP).
 
@@ -387,7 +387,7 @@ $fp=fopen("app01.pem","r");
 $private_key_string=fread($fp,8192);
 fclose($fp);
 
-openssl_private_decrypt($authenticatedUser_decoded, $authenticatedUser_decrypted, $private_key_string)
+openssl_private_decrypt($authenticatedUser_decoded, $authenticatedUser_decrypted, $private_key_string);
 
 $authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
 ```
