@@ -8,8 +8,23 @@ La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata 
 
 Il gateway è stato sviluppato in linguaggio PHP.
 
-![Alt text](<img src='https://g.gravizo.com/svg?@startuml;participant "App01" as A;participant "Gateway" as B;participant "FEDERA/SPID" as C;A -> B: Request Encrypted;activate B;B -> C: SAML Request;activate C;C --> B: SAML Response;deactivate C;B --> A: Response Encryoted;deactivate B;@enduml'>)
-
+![Alt text](https://g.gravizo.com/svg?
+  digraph G {
+    aize ="4,4";
+    main [shape=box];
+    main -> parse [weight=8];
+    parse -> execute;
+    main -> init [style=dotted];
+    main -> cleanup;
+    execute -> { make_string; printf}
+    init -> make_string;
+    edge [color=red];
+    main -> printf [style=bold,label="100 times"];
+    make_string [label="make a string"];
+    node [shape=box,style=filled,color=".7 .3 1.0"];
+    execute -> compare;
+  }
+)
 
 ![Alt text](https://g.gravizo.com/source/custom_mark13?https%3A%2F%2Fraw.githubusercontent.com%2FTLmaK0%2Fgravizo%2Fmaster%2FREADME.md)
 <details> 
@@ -31,6 +46,35 @@ deactivate B;
 custom_mark13
 </details>
 
+
+<img src='https://g.gravizo.com/svg?
+@startuml;
+
+actor User;
+participant "First Class" as A;
+participant "Second Class" as B;
+participant "Last Class" as C;
+
+User -> A: DoWork;
+activate A;
+
+A -> B: Create Request;
+activate B;
+
+B -> C: DoWork;
+activate C;
+
+C --> B: WorkDone;
+destroy C;
+
+B --> A: Request Created;
+deactivate B;
+
+A --> User: Done;
+deactivate A;
+
+@enduml
+'>
 
 ### Librerie utilizzate
 
@@ -320,13 +364,13 @@ Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 
 Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. Il metodo di sicurezza utilizzato è quello a chiave pubblica/privata (PKI). Viene generata sul gateway una coppia di chiavi; la chiave privata viene consegnata al client per cifrare le richieste di autenticazione e la chiave pubblica viene consegnata al server per decifrare le richieste e cifrare le risposte di autenticazione.
 
-#### Modalità di integrazione
+#### Modalità di integrazione fra client e gateway
 
 Ipotizziamo di dover integrare un servizio applicativo che denomineremo app01.
 
 - Generiamo una nuova coppia di chiavi 
 
-> ATTENZIONE AI NOMI DELLE CHIAVI, DEVO ESSERE IL NOME DEL SERVIZIO CHE VIENE INTEGRATO
+> ATTENZIONE AL NOME DEL FILE DELLE CHIAVI, DEVE ESSERE IDENTICO AL NOME DEL SERVIZIO CHE VIENE INTEGRATO
 
 ```
 openssl req -new -x509 -days 3652 -nodes -out app01.crt -keyout app01.pem
@@ -342,21 +386,42 @@ $CERT_PATH = 'PATH_TO/certs/';
 
 del file wwwroot/config.php
 
-#### Client modalità di richiesta di autenticazione
+#### Modalità di richiesta di autenticazione client
 
 Per poter effettuare una richiesta di autenticazione al gateway il client deve inviare una richiesta GET alla pagina auth.php del gateway con i seguenti parametri:
 
+```
 nomeServizioIntegrazione=PARAMETRI_CIFRATI
+```
 
-Ad esempio per il servizio precedentemente integrato
+Ad esempio per il servizio precedentemente integrato la url di richiesta sarà:
 
+```
 https://GATEWAY_URL?auth.php?app01=CgN....Yq
+```
 
 I parametro che è necessario inviare è una stringa di testo cifrata così composta:
 
 ```
 timestamp;url_di_risposta_autenticazione
 ```
+
+Il codice PHP per la generazione del parametro:
+
+```
+$landingPage = "http://app01/auth-landing.php";
+$ts = date("YmdHis", time() - date("Z"));
+
+$fp=fopen("app01.pem","r")
+$private_key_string=fread($fp,8192);
+fclose($fp);
+
+openssl_private_encrypt($ts . ";" . $landingPage;,$ts_crypted,$private_key_string);
+
+$b64_ts_crypted =  Base64Url::encode($ts_crypted);
+
+$gwURL = "https://GATEWAY_URL?auth.php?app01=" . $b64_ts_crypted;
+```					
 
 
 
