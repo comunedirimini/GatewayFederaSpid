@@ -17,53 +17,37 @@ Il gateway è stato sviluppato in linguaggio PHP.
 
 ### Installazione e configurazione Gateway
 
-- Verificare la versione PHP
+Da ora in avanti indicherò come wwwroot la cartella di installazione del gateway
 
-	La versione deve essere > 5.5.x
-	- php -v
+#### Verificare la versione PHP. La versione deve essere > 5.5.x
 
-- git
+```
+php -v
+```
 
+#### Installazione del gateway tramite git
 
-- php composer-setup.php install
+```
+git clone https://github.com/paulodiff/GatewayFederaSpid.git
+```
 
+#### Installare le librerie con [composer](https://getcomposer.org/)
 
+```
+php composer-setup.php install
+```
 
-- File e cartelle
+#### Generare i certificati per il gateway
 
-	Nelle cartella di root del gateway bisogna copiare i seguenti files:
-
-	- index.php (vuoto - home page descrittiva gateway)
-	- auth.php 
-	- response.php
-	- metadata.php
-
-- Generare i certificati per il gateway
-
-	Creare una cartella non accessibile dal server web e generare i certificati con il seguente comando
+Creare una cartella non accessibile dal server web e generare i certificati con il seguente comando
 	
 ```
 openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
 ```
 
-- Scaricare e copiare la libreria OneLogin's SAML PHP Toolkit 
-
-	Scaricare la libreria in una cartella accessibile dal server web ad es: root/lib/php-saml
-
-	Copiare i file
-	Riportare il percorso per la configurazione finale
-
-- PATH alla libreria per asserzioni multiple
-
-- Scaricare e copiare la libreria Base64Url
-
-	Scaricare la libreria in una cartella accessibile dal server web ad es: root/lib/base64url
-	Copiare i file
-	Riportare il percorso per la configurazione finale
-
 #### Configurazione SAML
 
-copiare settings_example.php in settings.php
+Nella cartella wwwroot/vendor/onelogin/php-saml/ copiare settings_example.php in settings.php
 
 Configurare la parte sp (service provider)
 ```
@@ -211,21 +195,21 @@ I dati sono già pronti per FEDERA TEST
     ),
 
 ```
-Copiare il file advanced_settings_example.php in advanced_settings.php
+Nella cartella wwwroot/vendor/onelogin/php-saml/ copiare il file advanced_settings_example.php in advanced_settings.php
 
-la voce signatureAlgorithm va impostata come segue anche se non è consigliato
+la voce signatureAlgorithm va impostata come segue anche se non è consigliato:
 
 ```
 'signatureAlgorithm' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
 ```
 
-### PATCH saml:Advice per libreria SAML
+#### PATCH saml:Advice per libreria SAML
 Le asserzioni multiple in risposta non sono gestite dalla librerie e per questo è necessario applicare una patch qui descritta :
 
 https://github.com/onelogin/php-saml/pull/113/commits/d99a2bcfb7866a3bca2d9b9eaab130ac0fd0abda
 
-Bisogna modificare il file php-saml-2.13.0/lib/Saml2/Response.php
-nella function validateNumAssertions 
+Bisogna modificare il file vendor/onelogin/php-saml/lib/Saml2/Response.php nella function validateNumAssertions  
+
 in questo modo:
 
 ```
@@ -279,15 +263,7 @@ in questo modo:
 
 ```
 
-### Configurazione dei log
-
-E' necessario inpostare il parametro in settings.php
-
-```
-$LOG_FILE = 'PATH_TO/gw.log';
-```
-
-### File di configurazione
+#### File di configurazione e LOG
 
 Creare la cartella nella wwroot/config e creare il file config.php in questo modo:
 
@@ -301,34 +277,42 @@ Creare la cartella nella wwroot/config e creare il file config.php in questo mod
 ?>
 ```
 
-### Verifica del file METADATA
+E' necessario inpostare il parametro in settings.php per la configurazione dei LOG
+
+```
+$LOG_FILE = 'PATH_TO/gw.log';
+```
+
+#### Verifica del file METADATA
 
 A questo punto è possibile verificare il file metadati generato accedendo alla seguente url :
 https://GATEWAY_URL/metadata.php
 
 
-### Richiedere l'integrazione a FEDERA
+#### Richiedere l'integrazione a FEDERA
 
-A questo punto il gateway è configurato
-
-### Abilitare DEBUG nel file di configurazione
-
-Nel file config/config.php impostare:
-
-```
-$DEBUG_GATEWAY = true; // abilita il debug
-```
+Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 
 ### Configurazione del Client dei test (ed integrazione con il gateway)
+
+Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate
+
+
+
+#### Parametri di invio
+
+#### Parametri ricevuti
 
 - Creare il certificato per l'integrazione
 - Copiare il certificato pubblico nella cartella del gateway
 - Indicare l'indirizzo del gateway
 
-### Configurazione per la produzione 
+### Configurazione per la produzione e personalizzazione
+
+- Disabilitare il DEBUG
 - Impostare eventuale dati in index.php (home page gateway)
 
-Disabilitare il DEBUG!
+
 
 ### Link alla normativa
 
