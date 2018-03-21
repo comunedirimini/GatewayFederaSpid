@@ -8,24 +8,6 @@ La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata 
 
 Il gateway è stato sviluppato in linguaggio PHP.
 
-![Alt text](https://g.gravizo.com/svg?
-  digraph G {
-    aize ="4,4";
-    main [shape=box];
-    main -> parse [weight=8];
-    parse -> execute;
-    main -> init [style=dotted];
-    main -> cleanup;
-    execute -> { make_string; printf}
-    init -> make_string;
-    edge [color=red];
-    main -> printf [style=bold,label="100 times"];
-    make_string [label="make a string"];
-    node [shape=box,style=filled,color=".7 .3 1.0"];
-    execute -> compare;
-  }
-)
-
 ![Alt text](https://g.gravizo.com/source/custom_mark13?https%3A%2F%2Fraw.githubusercontent.com%2FTLmaK0%2Fgravizo%2Fmaster%2FREADME.md)
 <details> 
 <summary></summary>
@@ -46,6 +28,23 @@ deactivate B;
 custom_mark13
 </details>
 
+![Alt text](https://g.gravizo.com/svg?
+  digraph G {
+    aize ="4,4";
+    main [shape=box];
+    main -> parse [weight=8];
+    parse -> execute;
+    main -> init [style=dotted];
+    main -> cleanup;
+    execute -> { make_string; printf}
+    init -> make_string;
+    edge [color=red];
+    main -> printf [style=bold,label="100 times"];
+    make_string [label="make a string"];
+    node [shape=box,style=filled,color=".7 .3 1.0"];
+    execute -> compare;
+  }
+)
 
 <img src='https://g.gravizo.com/svg?
 @startuml;
@@ -73,6 +72,53 @@ deactivate B;
 A --> User: Done;
 deactivate A;
 
+@enduml
+'>
+
+![Alt text](https://g.gravizo.com/source/custom_mark13?https%3A%2F%2Fraw.githubusercontent.com%2FTLmaK0%2Fgravizo%2Fmaster%2FREADME.md)
+<details> 
+<summary></summary>
+custom_mark13
+@startuml;
+actor User;
+participant "First Class" as A;
+participant "Second Class" as B;
+participant "Last Class" as C;
+User -> A: DoWork;
+activate A;
+A -> B: Create Request;
+activate B;
+B -> C: DoWork;
+activate C;
+C -> B: WorkDone;
+destroy C;
+B -> A: Request Created;
+deactivate B;
+A -> User: Done;
+deactivate A;
+@enduml
+custom_mark13
+</details>
+
+![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
+
+(https://g.gravizo.com/svg?@startuml;
+actor User;
+participant "First Class" as A;
+participant "Second Class" as B;
+participant "Last Class" as C;
+User -> A: DoWork;
+activate A;
+A -> B: Create Request;
+activate B;
+B -> C: DoWork;
+activate C;
+C --> B: WorkDone;
+destroy C;
+B --> A: Request Created;
+deactivate B;
+A --> User: Done;
+deactivate A;
 @enduml
 '>
 
