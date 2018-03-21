@@ -197,7 +197,7 @@ I dati sono già pronti per FEDERA TEST
     ),
 
 ```
-Nella cartella wwwroot/vendor/onelogin/php-saml/ copiare il file advanced_settings_example.php in advanced_settings.php
+Nella cartella *wwwroot/vendor/onelogin/php-saml/* copiare il file *advanced_settings_example.php* in *advanced_settings.php*
 
 la voce signatureAlgorithm va impostata come segue anche se non è consigliato:
 
@@ -210,7 +210,7 @@ Le asserzioni multiple in risposta non sono gestite dalla librerie e per questo 
 
 https://github.com/onelogin/php-saml/pull/113/commits/d99a2bcfb7866a3bca2d9b9eaab130ac0fd0abda
 
-Bisogna modificare il file vendor/onelogin/php-saml/lib/Saml2/Response.php nella function validateNumAssertions  
+Bisogna modificare il file *vendor/onelogin/php-saml/lib/Saml2/Response.php* nella *function validateNumAssertions*  
 
 in questo modo:
 
@@ -241,8 +241,6 @@ in questo modo:
         return $valid;
 	*/
 
-
-
 	$encryptedAssertionNodesLength = 0;
 	$assertionNodesLength = 0;
 
@@ -260,14 +258,13 @@ in questo modo:
 
         return ($assertionNodesLength + $encryptedAssertionNodesLength == 1);
 
-
     }
 
 ```
 
 #### File di configurazione e LOG
 
-Creare la cartella nella wwroot/config e creare il file config.php in questo modo:
+Creare la cartella nella *wwroot/config* e creare il file config.php in questo modo:
 
 ```
 <?php
@@ -288,7 +285,7 @@ $LOG_FILE = 'PATH_TO/gw.log';
 #### Verifica del file METADATA
 
 A questo punto è possibile verificare il file metadati generato accedendo alla seguente url :
-https://GATEWAY_URL/metadata.php
+*https://GATEWAY_URL/metadata.php*
 
 
 #### Richiedere l'integrazione a FEDERA
@@ -298,7 +295,7 @@ Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 #### Configurazione per la produzione e personalizzazione
 
 - Disabilitare il DEBUG
-- Impostare eventuale dati in index.php (home page gateway)
+- Impostare eventuale dati in *index.php* (home page gateway)
 
 ### Configurazione del Client per l'integrazione con il gateway
 
@@ -316,19 +313,19 @@ Ipotizziamo di dover integrare un servizio applicativo che denomineremo app01.
 openssl req -new -x509 -days 3652 -nodes -out app01.crt -keyout app01.pem
 ```
 
-La chiave app01.pem viene consegnata la client
+La chiave *app01.pem* viene consegnata la client
 
-La chiave app01.crt viene memorizzata nella cartella indicata da:
+La chiave *app01.crt* viene memorizzata nella cartella indicata da:
 
 ```	
 $CERT_PATH = 'PATH_TO/certs/';
 ```
 
-del file wwwroot/config.php
+del file *wwwroot/config.php*
 
 #### Modalità di richiesta di autenticazione client
 
-Per poter effettuare una richiesta di autenticazione al gateway il client deve inviare una richiesta GET alla pagina auth.php del gateway con i seguenti parametri:
+Per poter effettuare una richiesta di autenticazione al gateway il client deve inviare una richiesta GET alla pagina *auth.php* del gateway con i seguenti parametri:
 
 ```
 nomeServizioIntegrazione=PARAMETRI_CIFRATI
@@ -381,7 +378,7 @@ Il formato della stringa con i dati è in questo formato:
 authenticationMethod;authenticatingAuthority;policyLevel;trustLevel;userid;CodiceFiscale;nome;cognome;dataNascita;luogoNascita;statoNascita
 ```
 
-Il codice PHP per la decifrare il parametro:
+Il codice PHP per decifrare il parametro *authenticatedUser*:
 
 ```
 $authenticatedUser = $_GET['authenticatedUser'];
@@ -401,11 +398,11 @@ $authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
 http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 
 
-#### Alcune note sulla sicurezza
+### Alcune note sulla sicurezza
 
 - verifica del ts
 - firewall che permette connessioni solo da origini autorizzate
 
-# Informazioni
+## Informazioni
 
 Ruggero Ruggeri - Comune di Rimini - ruggero.ruggeri@comune.rimini.it - 0541 704607
