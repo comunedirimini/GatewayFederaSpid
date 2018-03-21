@@ -72,6 +72,13 @@ $autenticationData = $autenticationData . ";" . $attributesArray['dataNascita'][
 $autenticationData = $autenticationData . ";" . $attributesArray['luogoNascita'][0];
 $autenticationData = $autenticationData . ";" . $attributesArray['statoNascita'][0];
 
+/*
+authenticationMethod,authenticatingAuthority,policyLevel,trustLevel,userid,CodiceFiscale,nome,cognome,dataNascita,luogoNascita,statoNascita
+*/
+
+
+
+
 if ($DEBUG_GATEWAY) { print_r($attributesArray); echo "<br>"; echo $autenticationData; echo "<br>"; }
 
 

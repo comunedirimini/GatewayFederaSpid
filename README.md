@@ -1,10 +1,9 @@
 # Gateway Federa Spid - Comune di Rimini
 ## Gateway di autenticazione Federa/SPID
 
-Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e la reale implementazione ed interfacciamento
-con il provider di identità digitali (IdP).
+Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e la reale implementazione ed interfacciamento con il provider di identità digitali (IdP).
 
-Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e restituire all' SP solo i dati dell'eventuale utente autenticato.
+Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di restituire all' SP solo i dati dell'eventuale utente autenticato.
 
 La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard PKCS (https://en.wikipedia.org/wiki/PKCS)
 
@@ -12,20 +11,9 @@ Il gateway è stato sviluppato in linguaggio PHP.
 
 ### Librerie utilizzate
 
-#### OneLogin's SAML PHP Toolkit
-(https://github.com/onelogin/php-saml)
-Libreria per la gestione SAML
-Alla libreria verrà applicata una patch per asserzioni multiple. Le indicazioni più avanti nel documento.
-> Note: patch multi asserzione Saml + SHA1 encryption
-
-#### Base64 Url Safe
-* [Base64UrlSafe](https://github.com/Spomky-Labs/base64url) - The web framework used
-generate RSS Feeds
-Libreria per encode/decode base64 di url
-(https://github.com/Spomky-Labs/base64url)
-
-
-#### gestione del LOG (TODO)
+- [OneLogin's SAML PHP Toolkit](https://github.com/onelogin/php-saml)
+- [Base64UrlSafe](https://github.com/Spomky-Labs/base64url)
+- [Monolog](https://github.com/Seldaek/monolog)
 
 ### Installazione e configurazione Gateway
 
@@ -291,45 +279,41 @@ in questo modo:
 
 ```
 
-### Verifica del file METADATA
+### Configurazione dei log
 
-A questo punto è possibile verificare il file metadati generato accedendo alla seguente url :
-https://GATEWAY_URL/metadata.php
+E' necessario inpostare il parametro in settings.php
 
+```
+$LOG_FILE = 'PATH_TO/gw.log';
+```
 
+### File di configurazione
 
-
-- Scaricare e copiare la libreria LOG (TODO)
-
-- Configurare il file della libreria SAML
-
-	- creare la cartelle /config
-	- creare un file "config.php" così fatto
+Creare la cartella nella wwroot/config e creare il file config.php in questo modo:
 
 ```
 <?php
 	$DEBUG_GATEWAY = true; // abilita il debug
-	$PHP_SAML_LIB_PATH = 'PATH_TO/php-saml-2.13.0/';
-	$LOG_FILE_LIB_PATH = 'PATH_TO/log.php';
-	$BASE64URL_LIB_PATH = PATH_TO/Base64Url.php';
-	$LOG_FILE = 'PATH_TO/log.txt';
+	$LOG_FILE = 'PATH_TO/gw.log';
 	// cartella dove sono presenti i
 	certificati di autorizzazione dei client
 	$CERT_PATH = 'PATH_TO/certs/';
 ?>
 ```
 
-- Verificare il metadata
+### Verifica del file METADATA
 
-	Aprire il browser e aprirlo alla pagina metadata.php
+A questo punto è possibile verificare il file metadati generato accedendo alla seguente url :
+https://GATEWAY_URL/metadata.php
 
-- Verificare la cartella di log
 
-- Richiedere l'integrazione a FEDERA
+### Richiedere l'integrazione a FEDERA
 
-- Abilitare DEBUG nel file di configurazione
+A questo punto il gateway è configurato
 
-	Nel file config/config.php impostare:
+### Abilitare DEBUG nel file di configurazione
+
+Nel file config/config.php impostare:
 
 ```
 $DEBUG_GATEWAY = true; // abilita il debug
@@ -345,6 +329,8 @@ $DEBUG_GATEWAY = true; // abilita il debug
 - Impostare eventuale dati in index.php (home page gateway)
 
 Disabilitare il DEBUG!
+
+### Link alla normativa
 
 http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 
