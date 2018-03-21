@@ -1,13 +1,16 @@
-# Gateway Federa Spid - Comune di Rimini
-## Gateway di autenticazione Federa/SPID
+# Gateway di autenticazione Federa Spid - Comune di Rimini
 
-Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e la reale implementazione ed interfacciamento con il provider di identità digitali (IdP).
+Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e l'implementazione dell'interfacciamento con il provider di identità digitali (IdP).
 
 Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di restituire all' SP solo i dati dell'eventuale utente autenticato.
 
 La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard PKCS (https://en.wikipedia.org/wiki/PKCS)
 
 Il gateway è stato sviluppato in linguaggio PHP.
+
+![Alt text](<img src='https://g.gravizo.com/svg?@startuml;participant "App01" as A;participant "Gateway" as B;participant "FEDERA/SPID" as C;A -> B: Request Encrypted;activate B;B -> C: SAML Request;activate C;C --> B: SAML Response;deactivate C;B --> A: Response Encryoted;deactivate B;@enduml'>)
+
+
 
 ### Librerie utilizzate
 
@@ -293,15 +296,34 @@ https://GATEWAY_URL/metadata.php
 
 Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 
-### Configurazione del Client dei test (ed integrazione con il gateway)
+### Configurazione del Client per l'integrazione con il gateway
 
-Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate
+Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. Il metodo di sicurezza utilizzato è quello a chiave pubblica/privata (PKI). Viene generata sul gateway una coppia di chiavi; la chiave privata viene consegnata al client per cifrare le richieste di autenticazione e la chiave pubblica viene consegnata al server per decifrare le richieste e cifrare le risposte di autenticazione.
 
+#### Modalità di integrazione
 
+Ipotizziamo di dover integrare un servizio applicativo che denomineremo app01.
 
-#### Parametri di invio
+- Generiamo una nuova coppia di chiavi 
 
-#### Parametri ricevuti
+> ATTENZIONE AI NOMI DELLE CHIAVI, DEVO ESSERE IL NOME DEL SERVIZIO CHE VIENE INTEGRATO
+
+```
+openssl req -new -x509 -days 3652 -nodes -out app01.crt -keyout app01.pem
+```
+
+La chiave app01.pem viene consegnata la client
+La chieva app01.crt viene memorizzata nella cartella indicata da:
+
+```	
+$CERT_PATH = 'PATH_TO/certs/';
+```
+
+del file wwwroot/config.php
+
+#### Client modalità di richiesta di autenticazione
+
+#### Client modalità di gestione della risposta di autenticazione
 
 - Creare il certificato per l'integrazione
 - Copiare il certificato pubblico nella cartella del gateway
