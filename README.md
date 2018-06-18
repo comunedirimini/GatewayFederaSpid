@@ -6,6 +6,9 @@ Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di rest
 
 La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard PKCS (https://en.wikipedia.org/wiki/PKCS)
 
+* AES per migliorare le prestazioni
+* La chiave sarà comunicata dal GW all'applicazione che la utilizzerà per inviare le richieste e ricevere i dati di autenticazione.
+
 Il gateway è stato sviluppato in linguaggio PHP.
 
 
@@ -298,33 +301,40 @@ Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 
 ### Configurazione del Client per l'integrazione con il gateway
 
-Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. Il metodo di sicurezza utilizzato è quello a chiave pubblica/privata (PKI). Viene generata sul gateway una coppia di chiavi; la chiave privata viene consegnata al client per cifrare le richieste di autenticazione e la chiave pubblica viene consegnata al server per decifrare le richieste e cifrare le risposte di autenticazione.
+Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. 
+Il metodo di sicurezza utilizzato è AES
+Viene generata sul gateway una chiave di dimensione 32; la chiave viene consegnata al client per cifrare le richieste di autenticazione.
 
 #### Modalità di integrazione fra client e gateway
 
+Per ogni integrazione deve essere configurato il servizio client sul gateway nella cartella indicata.
+
 Ipotizziamo di dover integrare un servizio applicativo che denomineremo app01.
 
-- Generiamo una nuova coppia di chiavi 
+- Generiamo una nuova chiave (lunghezza 32)
 
-> ATTENZIONE AL NOME DEL FILE DELLE CHIAVI, DEVE ESSERE IDENTICO AL NOME DEL SERVIZIO CHE VIENE INTEGRATO
-
-```
-openssl req -new -x509 -days 3652 -nodes -out app01.crt -keyout app01.pem
-```
-
-La chiave *app01.pem* viene consegnata la client
-
-La chiave *app01.crt* viene memorizzata nella cartella indicata da:
+Nella cartelle indicata nel file di configurazione config.php $CONFIG_PATH
 
 ```	
-$CERT_PATH = 'PATH_TO/certs/';
+$CONFIG_PATH = '/PATH_TO/config/';
+
+```
+dobbiamo creare un file NOMESERVIZIO.php così fatto:
+
+```	
+<?php
+
+$GATEWAY_APP_ID = 'app01';
+$GATEWAY_RETURN_URL='https://URL_TO_CLIENT_WITH_AUTH_DATA/cli-landing.php';
+$GATEWAY_APP_KEY = '1234567890123456789012';
+
+?>
 ```
 
-del file *wwwroot/config.php*
 
 #### Modalità di richiesta di autenticazione client
 
-Per poter effettuare una richiesta di autenticazione al gateway il client deve inviare una richiesta GET alla pagina *auth.php* del gateway con i seguenti parametri:
+Per poter effettuare una richiesta di autenticazione al gateway il client deve inviare una richiesta GET alla pagina *gw-auth.php* del gateway con i seguenti parametri:
 
 ```
 nomeServizioIntegrazione=PARAMETRI_CIFRATI
@@ -333,13 +343,13 @@ nomeServizioIntegrazione=PARAMETRI_CIFRATI
 Ad esempio per il servizio precedentemente integrato la url di richiesta sarà:
 
 ```
-https://GATEWAY_URL?auth.php?app01=CgN....Yq
+https://GATEWAY_URL?gw-auth.php?appId=app01&data=CgN....Yq
 ```
 
 I parametro che è necessario inviare è una stringa di testo cifrata così composta:
 
 ```
-timestamp;url_di_risposta_autenticazione
+appId;uuidv4
 ```
 
 Il codice PHP per la generazione del parametro:
@@ -392,7 +402,9 @@ openssl_private_decrypt($authenticatedUser_decoded, $authenticatedUser_decrypted
 $authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
 ```
 
-### Link alla normativa
+### Link utili
+
+http://federazione.lepida.it/
 
 http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 

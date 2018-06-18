@@ -4,6 +4,6 @@
 // echo "openssl version number:  " . OPENSSL_VERSION_NUMBER . "\n";
 // phpinfo();
 
-include('cli-start.php');
+echo "Gateway logout page!";
 
 ?>

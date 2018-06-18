@@ -6,65 +6,102 @@ ini_set('display_errors', 1);
 require __DIR__ . '/vendor/autoload.php';
 
 use Base64Url\Base64Url;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 
 // PAGINA DI DEFAULT PER IL CONSUMO DELLE CREDENZIALI
-$landingPage = "http://pmlab.comune.rimini.it/federa/cli-landing.php";
+$landingPage = "https://autenticazione-test.comune.rimini.it/cli-landing.php";
 
 
 echo "<pre>";
 
-echo "<h1>Client test gateway</h1>";
+echo "<h1>Client test gateway per autenticazione verso FEDERA TEST</h1>";
 echo "<br>";
-echo "Url landingPage:" . $landingPage;
+
+$uuid4 = Uuid::uuid4();
+$uuid4String = $uuid4->toString();
+// $uuid4String = 'FAKEUUIDV4';
+
+echo "UUID4 transaction id: " . $uuid4String;
 echo "<br>";
-echo "<h2>Test cifratura</h2>";
+
+$method = "aes-256-cbc";
+echo "Cypher method: " . $method;
+echo "<br>";
+
+// prepara i dati da cifrare appId e uuidv4
+$appId = "appdemo";
+$ts = $appId . ";" . $uuid4String;
 
 
-$ts = date("YmdHis", time() - date("Z"));
-
-
-$ts = $ts . ";" . $landingPage;
-
-
-$fp=fopen("./cli_certs/private.pem","r") or die('ERROR: private certificate not found!');
-$private_key_string=fread($fp,8192);
+$fp=fopen("./cli-key.txt","r") or die('ERROR: key not found!');
+$key_string=fread($fp,8192);
 fclose($fp);
 
-echo $private_key_string;
+echo "Key string : " .$key_string;
 echo "<br>";
 
-openssl_private_encrypt($ts,$ts_crypted,$private_key_string);
+$iv_length = openssl_cipher_iv_length($method); // len 16
+echo "iv_length : " .$iv_length; echo "<br>";
 
+// genera iv 16
+$iv = random_str($iv_length);
+// $iv = 'FAKEIV1234567890';
+echo "iv : " .$iv; echo "<br>";
+
+echo "<br>";
+
+echo "<b>dati da cifrare: </b>";
 echo $ts;
 echo "<br>";
 
+
+// cifra il messaggio con la chiave
+$ts_crypted = openssl_encrypt($ts, $method, $key_string, $options=0, $iv);
+
+echo "<b>dati cifrati   : </b>";
+echo $ts_crypted; echo "<br>";
+
 // echo $ts_crypted;echo "<br>";
 
-// $b64_ts_crypted =  base64_encode($ts_crypted);
+// encoding base64 del messaggio cifrato
 $b64_ts_crypted =  Base64Url::encode($ts_crypted);
+echo "<b>dati cifrati b64: </b>"; 
 echo $b64_ts_crypted; echo "<br>";
-					
+                    
+echo "<h4>decrypt per verifica:</h4>"; echo "<br>";
 
 // $ts_crypted_out = base64_decode($b64_ts_crypted);
 $ts_crypted_out = Base64Url::decode($b64_ts_crypted);
 
-$fp=fopen("./cli_certs/public.crt","r") or die('ERROR: public certificate not found!');
-$public_key_string=fread($fp,8192);
-fclose($fp);
+echo "openssl_decrypt: ";
+$ts_out = openssl_decrypt($ts_crypted_out, $method, $key_string, $options=0, $iv);
+echo $ts_out; echo "<br>";
 
-echo $public_key_string;
-echo "<br>";
+// preparo la url con i parametri appId e data
 
-
-openssl_public_decrypt($ts_crypted_out, $ts_out, $public_key_string);
-echo $ts_out;
-echo "<br>";
-
+$url  = "https://autenticazione-test.comune.rimini.it/gw-auth.php?appId=appdemo&data=" . $iv .$b64_ts_crypted; 
+$url_fake = "https://autenticazione-test.comune.rimini.it/gw-authFAKE.php?appId=appdemo&data=" . $iv .$b64_ts_crypted;
 
 ?>
+<b><?php echo $url ?></b>
+<h1><a href="<?php echo $url ?>">login con FEDERA TEST</a></h1>
 
-<h1>Federa Test</h1>
-<h1><a href="https://pmlab.comune.rimini.it/federa/auth.php?appdemo=<?php echo $b64_ts_crypted ?>">login</a></h1>
-<br/>
-<h1><a href="https://pmlab.comune.rimini.it/federa/metadata/">metadata</a></h1>
+<b><?php echo $url_fake ?></b>
+<h1><a href="<?php echo $url_fake ?>">login FAKE non passa da FEDERA (debug gateway)</a></h1>
+
+<h1><a href="https://autenticazione-test.comune.rimini.it/metadata.php">metadata</a></h1>
+
+<?php
+
+function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+{
+    $pieces = [];
+    $max = mb_strlen($keyspace, '8bit') - 1;
+    for ($i = 0; $i < $length; ++$i) {
+        $pieces []= $keyspace[random_int(0, $max)];
+    }
+    return implode('', $pieces);
+}
+?>
