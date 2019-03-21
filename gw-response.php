@@ -1,27 +1,49 @@
 <?php
 
-if ($DEBUG_GATEWAY) {
-	error_reporting(E_ALL);
-	ini_set('display_errors', '1');
-	echo '<pre>';
-	echo '<h1>GATEWAY DEBUG ENABLE! - GW-RESPONSE.PHP</h1>';
-}
-
-include('./config/config.php');
-
-if ($DEBUG_GATEWAY) { echo "LOG FILE : "; echo $LOG_FILE; echo "<br>"; }
-if ($DEBUG_GATEWAY) { echo "CONFIG PATH : "; echo $CONFIG_PATH; echo "<br>"; }
-if ($DEBUG_GATEWAY) { echo "CIPHER_METHOD:"; echo $CIPHER_METHOD ; echo "<br>"; }
-if ($DEBUG_GATEWAY) { echo "TRANSACTIONS_PATH:"; echo $TRANSACTIONS_PATH ; echo "<br>"; }
+// include('/dati/gateway-federa/gw-config.php');
 
 require __DIR__ . '/vendor/autoload.php';
 use Base64Url\Base64Url;
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\NativeMailerHandler;
+
+
+// caricamento impostazioni da .env e settaggio variabili da $_ENV
+
+$dotenv = Dotenv\Dotenv::create('/dati/gateway-federa/', 'gw-config.env');
+$dotenv->load();
+
+$DEBUG_GATEWAY = (getenv('DEBUG_GATEWAY') === 'true'? true : false);
+$LOG_FILE = $_ENV['LOG_FILE'];
+$LOG_PATH = $_ENV['LOG_PATH'];
+$CONFIG_PATH = $_ENV['CONFIG_PATH'];
+$TRANSACTIONS_PATH = $_ENV['TRANSACTIONS_PATH'];
+$CIPHER_METHOD = $_ENV['CIPHER_METHOD'];
+
+
+if ($DEBUG_GATEWAY) {
+	error_reporting(E_ALL);
+	ini_set('display_errors', '1');
+	echo '<pre>';
+    echo '<h1>GATEWAY DEBUG ENABLE! - GW-RESPONSE.PHP</h1>';
+    print_r($_ENV);
+}
+
+if ($_SERVER['REQUEST_METHOD'] <> 'POST') {
+    die('R_ERROR0'); 
+}
+
+if ($DEBUG_GATEWAY) { echo "LOG FILE         : "; echo $LOG_FILE; echo "<br>"; }
+if ($DEBUG_GATEWAY) { echo "CONFIG PATH      : "; echo $CONFIG_PATH; echo "<br>"; }
+if ($DEBUG_GATEWAY) { echo "CIPHER_METHOD    :"; echo $CIPHER_METHOD ; echo "<br>"; }
+if ($DEBUG_GATEWAY) { echo "TRANSACTIONS_PATH:"; echo $TRANSACTIONS_PATH ; echo "<br>"; }
+
 
 // create a log channel
 $log = new Logger('gw');
 $log->pushHandler(new RotatingFileHandler($LOG_FILE,0,Logger::DEBUG));
+if (!$DEBUG_GATEWAY) $log->pushHandler(new NativeMailerHandler('ruggero.ruggeri@comune.rimini.it', 'Errore GatewayFederaSpid','autenticazione-federa-spid@comune.rimini.it',Logger::ERROR,true, 70));
 
 // create Saml client and process response
 $auth = new OneLogin_Saml2_Auth();
@@ -35,7 +57,7 @@ if (!empty($errors)) {
     exit();
 }
  
-// check RelayState
+// controlla il RelayState se esiste
 if(!isset($_POST['RelayState']))  {
     $log->error('POST RelayState void!');
     die('R_ERROR1'); 
@@ -59,12 +81,20 @@ if (file_exists($transactionFileName)) {
     die('R_ERROR_TRANSACTION');
 }
 
-//check and get client configuration file
-$crtFile = $CONFIG_PATH .  $appId . '.php';
-if ($DEBUG_GATEWAY) { echo $crtFile ; echo "<br>"; }
+//check and get client configuration file .env
+// TODO DA CIFRARE IL FILE CON I PARAMETRI
+$crtFile = $CONFIG_PATH .  $appId . '.env';
+if ($DEBUG_GATEWAY) { echo 'config file :'; echo $crtFile ; echo "<br>"; }
 
 if (file_exists($crtFile)) {
-    require($crtFile);
+    
+    $dotenv = Dotenv\Dotenv::create($CONFIG_PATH, $appId . '.env');
+	$dotenv->load();
+
+	$GATEWAY_APP_ID = $_ENV['GATEWAY_APP_ID'];
+	$GATEWAY_RETURN_URL = $_ENV['GATEWAY_RETURN_URL'];
+    $GATEWAY_APP_KEY = $_ENV['GATEWAY_APP_KEY'];
+    
     if ($DEBUG_GATEWAY) { echo "GATEWAY_APP_ID: "; echo $GATEWAY_APP_ID . "<br>"; }
 	if ($DEBUG_GATEWAY) { echo "GATEWAY_RETURN_URL: "; echo $GATEWAY_RETURN_URL . "<br>"; }
 	if ($DEBUG_GATEWAY) { echo "GATEWAY_APP_KEY: "; echo $GATEWAY_APP_KEY . "<br>"; }
@@ -82,20 +112,32 @@ $attributesArray = $auth->getAttributes();
 
 $autenticationData = $transactionId;
 $autenticationData = $autenticationData . ";" . $NameId;
-$autenticationData = $autenticationData . ";" . $attributesArray['authenticationMethod'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['authenticatingAuthority'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['policyLevel'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['trustLevel'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['userid'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['CodiceFiscale'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['nome'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['cognome'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['dataNascita'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['luogoNascita'][0];
-$autenticationData = $autenticationData . ";" . $attributesArray['statoNascita'][0];
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['authenticationMethod'][0]) ? $attributesArray['authenticationMethod'][0] : 'NOauthenticationMethod');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['authenticatingAuthority'][0]) ? $attributesArray['authenticatingAuthority'][0] : 'NOauthenticatingAuthority');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['spidCode'][0]) ? $attributesArray['spidCode'][0] : 'NOspidCode');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['policyLevel'][0]) ? $attributesArray['policyLevel'][0] : 'NOpolicyLevel');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['trustLevel'][0]) ? $attributesArray['trustLevel'][0] : 'NOtrustLevel');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['userid'][0]) ? $attributesArray['userid'][0] : 'NOuserid');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['CodiceFiscale'][0]) ? $attributesArray['CodiceFiscale'][0] : 'NOCodiceFiscale');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['nome'][0]) ? $attributesArray['nome'][0] : 'NOnome');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['cognome'][0]) ? $attributesArray['cognome'][0] : 'NOcognome');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['dataNascita'][0]) ? $attributesArray['dataNascita'][0] : 'NOdataNascita');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['luogoNascita'][0]) ? $attributesArray['luogoNascita'][0] : 'NOluogoNascita');
+$autenticationData = $autenticationData . ";" . ( isset($attributesArray['statoNascita'][0]) ? $attributesArray['statoNascita'][0] : 'NOstatoNascita');
 
 /*
-authenticationMethod,authenticatingAuthority,policyLevel,trustLevel,userid,CodiceFiscale,nome,cognome,dataNascita,luogoNascita,statoNascita
+authenticationMethod,
+authenticatingAuthority,
+spidCode,
+policyLevel,
+trustLevel,
+userid,
+CodiceFiscale,
+nome,
+cognome,
+dataNascita,
+luogoNascita,
+statoNascita
 */
 
 
@@ -125,11 +167,12 @@ $url2redirect = $GATEWAY_RETURN_URL . '?data=' . $iv . $autenticationData_crypte
 
 // setup log for appId
 $logApp = new Logger($appId);
-$logApp->info('Response start transaction Id : ' . $transactionId );
+$logApp->pushHandler(new RotatingFileHandler($LOG_PATH . $appId . '.log',0,Logger::DEBUG));
+$logApp->info('Response HTTP_REFERER : ' . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '') );
+$logApp->info('Response REMOTE_ADDR : ' . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '') );
+$logApp->info('Response transactionId : ' . $transactionId );
 $logApp->info('Response url : ' . $url2redirect );
-$logApp->info('Response autenticationData' );
-$logApp->info( $autenticationData );
-
+$logApp->info('Response autenticationData : ' . $autenticationData );
 
 if ($DEBUG_GATEWAY) { echo "<h1>"; echo $url2redirect; echo "<br>"; echo "<a href=\"" . $url2redirect . "\">FEDERA HA RISPOSTO RITORNO AL CLIENT con i dati di autenticazione!</a></h1>"; }
 else {

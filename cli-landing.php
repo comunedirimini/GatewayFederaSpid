@@ -1,3 +1,4 @@
+<html><body bgcolor="#FFAAFA">
 <?php
 
 error_reporting(E_ALL);
@@ -7,14 +8,22 @@ require __DIR__ . '/vendor/autoload.php';
 
 use Base64Url\Base64Url;
 
-$authenticatedUser = substr($_GET['data'],16);
-$iv = substr($_GET['data'],0,16);
-
-
 echo "<pre>";
 echo "<h1>LANDING PAGE CLIENT ...</h1>";
 echo "<p>Riceve la risposta dal gateway cifrata la decifra ed utilizza i dati per il logon</p>";
 echo "<br>";
+
+
+if ( !$_GET['data'] ) {
+	echo "PARAMETRO data mancante";
+	die('data');
+}
+
+
+$authenticatedUser = substr($_GET['data'],16);
+$iv = substr($_GET['data'],0,16);
+
+
 
 
 $method = "aes-256-cbc";
@@ -51,3 +60,8 @@ echo "<h1>Risposta dal gw .. dati utente ...</h1>";
 print_r($authenticatedDataArray);
 
 ?>
+
+<a href="cli-start.php">START</a>
+
+
+</body></html>

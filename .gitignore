@@ -8,6 +8,7 @@ storage
 docs
 .idea
 .temp
+.vscode
 .sass-cache
 client/bower_components
 client/scripts/configuration.js

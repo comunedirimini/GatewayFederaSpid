@@ -1,8 +1,0 @@
-<?php
-
-// SAML client
-
-
-
-
-?>

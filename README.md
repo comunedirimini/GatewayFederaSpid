@@ -4,7 +4,21 @@ Il gateway di autenticazione permette di implementare un livello di astrazione f
 
 Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di restituire all' SP solo i dati dell'eventuale utente autenticato.
 
-La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard PKCS (https://en.wikipedia.org/wiki/PKCS)
+La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard AES (https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
+
+
+aes-256-cbc
+
+AES
+Key da 256bit
+cbc
+quanto è sicura?
+https://www.eetimes.com/document.asp?doc_id=1279619#
+https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard
+https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
+
+
+openssl_encrypt($ts, $method, $key_string, $options=0, $iv);
 
 * AES per migliorare le prestazioni
 * La chiave sarà comunicata dal GW all'applicazione che la utilizzerà per inviare le richieste e ricevere i dati di autenticazione.
@@ -42,13 +56,20 @@ git clone https://github.com/paulodiff/GatewayFederaSpid.git
 php composer-setup.php install
 ```
 
-#### Generare i certificati per il gateway
+#### Generare la key di cifratura fra client e gateway
 
-Creare una cartella non accessibile dal server web e generare i certificati con il seguente comando
-	
-```
+Portarsi in una cartella temporanea per generare i certificati da inserire nel gateway
+
 openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
-```
+
+Impostarli a linea singola, rimuovendo l'intestazione ed il piede
+
+....
+
+awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}'  gw_private.pem  > gw_private.txt
+
+awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}'  gw_private.pem  > gw_private.txt
+
 
 #### Configurazione SAML
 
@@ -343,7 +364,7 @@ nomeServizioIntegrazione=PARAMETRI_CIFRATI
 Ad esempio per il servizio precedentemente integrato la url di richiesta sarà:
 
 ```
-https://GATEWAY_URL?gw-auth.php?appId=app01&data=CgN....Yq
+https://GATEWAY_URL/gw-auth.php?appId=app01&data=CgN....Yq
 ```
 
 I parametro che è necessario inviare è una stringa di testo cifrata così composta:
@@ -351,6 +372,9 @@ I parametro che è necessario inviare è una stringa di testo cifrata così comp
 ```
 appId;uuidv4
 ```
+
+##################### da modificare ----- OBSOLETO ---------------------------- ###########################
+
 
 Il codice PHP per la generazione del parametro:
 
@@ -411,6 +435,13 @@ http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-su
 
 ### Alcune note sulla sicurezza
 
+- Rimuovere il client di test una provato il funzionamento e
+  cli-start.php cli-landing.php cli-key.txt e
+  /dati/gateway-federa/config/appdemo.env
+- PHP Security
+    - rimuovere composer
+    - patch di sicurezza PHP
+- APACHE Security
 - verifica del ts
 - firewall che permette connessioni solo da origini autorizzate
 
