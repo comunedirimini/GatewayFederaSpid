@@ -13,15 +13,15 @@ AES
 Key da 256bit
 cbc
 quanto è sicura?
-https://www.eetimes.com/document.asp?doc_id=1279619#
-https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard
-https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
 
+- https://www.eetimes.com/document.asp?doc_id=1279619#
+- https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard
+- https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
 
 openssl_encrypt($ts, $method, $key_string, $options=0, $iv);
 
 * AES per migliorare le prestazioni
-* La chiave sarà comunicata dal GW all'applicazione che la utilizzerà per inviare le richieste e ricevere i dati di autenticazione.
+* La chiave (stringa lunga 32 caratteri) sarà comunicata dal GW all'applicazione che la utilizzerà per inviare le richieste e ricevere i dati di autenticazione.
 
 Il gateway è stato sviluppato in linguaggio PHP.
 
@@ -60,15 +60,18 @@ php composer-setup.php install
 
 Portarsi in una cartella temporanea per generare i certificati da inserire nel gateway
 
+```
 openssl req -new -x509 -days 3652 -nodes -out gw_public.crt -keyout gw_private.pem
+```
 
 Impostarli a linea singola, rimuovendo l'intestazione ed il piede
 
 ....
 
+```
 awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}'  gw_private.pem  > gw_private.txt
-
 awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}'  gw_private.pem  > gw_private.txt
+```
 
 
 #### Configurazione SAML
@@ -104,7 +107,7 @@ copiare in forma di stringa i certificati generati per il gateway
         // returned to the requester, in this case our SP.
         'assertionConsumerService' => array (
             // URL Location where the <Response> from the IdP will be returned
-            'url' => 'https://GATEWAY_URL/response.php',
+            'url' => 'https://GATEWAY_URL/gw-response.php',
             // SAML protocol binding to be used when returning the <Response>
             // message.  Onelogin Toolkit supports for this endpoint the
             // HTTP-Redirect binding only
@@ -132,7 +135,7 @@ copiare in forma di stringa i certificati generati per il gateway
         // returned to the requester, in this case our SP.
         'singleLogoutService' => array (
             // URL Location where the <Response> from the IdP will be returned
-            'url' => 'https://GATEWAY_URL/logout.php',
+            'url' => 'https://GATEWAY_URL/gw-logout.php',
             // SAML protocol binding to be used when returning the <Response>
             // message.  Onelogin Toolkit supports for this endpoint the
             // HTTP-Redirect binding only
@@ -308,7 +311,7 @@ $LOG_FILE = 'PATH_TO/gw.log';
 #### Verifica del file METADATA
 
 A questo punto è possibile verificare il file metadati generato accedendo alla seguente url :
-*https://GATEWAY_URL/metadata.php*
+*https://GATEWAY_URL/gw-metadata.php*
 
 
 #### Richiedere l'integrazione a FEDERA
@@ -320,11 +323,19 @@ Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 - Disabilitare il DEBUG
 - Impostare eventuale dati in *index.php* (home page gateway)
 
+## Integrazione client - introduzione
+
+Il flusso operativo client gateway avviene in questo modo
+
+- si genera una chiave segreta lunga 32 byte simmetrica che dovranno conoscere client e server per la cifrare alcuni parametri di comunicazione
+- deve essere configurato su gateway il servizio di integrazione con nome_servizio e chiave_cifratura
+- il client prepara la richiesta di accesso al gateway con questi passi
+
 ### Configurazione del Client per l'integrazione con il gateway
 
 Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. 
 Il metodo di sicurezza utilizzato è AES
-Viene generata sul gateway una chiave di dimensione 32; la chiave viene consegnata al client per cifrare le richieste di autenticazione.
+Viene generata sul gateway una chiave di dimensione 32 caratteri; la chiave viene consegnata al client per cifrare le richieste di autenticazione.
 
 #### Modalità di integrazione fra client e gateway
 
@@ -332,7 +343,7 @@ Per ogni integrazione deve essere configurato il servizio client sul gateway nel
 
 Ipotizziamo di dover integrare un servizio applicativo che denomineremo app01.
 
-- Generiamo una nuova chiave (lunghezza 32)
+- Generiamo una nuova chiave (lunghezza 32 byte)
 
 Nella cartelle indicata nel file di configurazione config.php $CONFIG_PATH
 
@@ -352,6 +363,8 @@ $GATEWAY_APP_KEY = '1234567890123456789012';
 ?>
 ```
 
+dove $GATEWAY_RETURN_URL è l'indirizzo dell'applicazione dove verrà restituito cifrato il risultato dell'autenticazione
+
 
 #### Modalità di richiesta di autenticazione client
 
@@ -360,71 +373,93 @@ Per poter effettuare una richiesta di autenticazione al gateway il client deve i
 ```
 nomeServizioIntegrazione=PARAMETRI_CIFRATI
 ```
-
-Ad esempio per il servizio precedentemente integrato la url di richiesta sarà:
-
-```
-https://GATEWAY_URL/gw-auth.php?appId=app01&data=CgN....Yq
-```
-
-I parametro che è necessario inviare è una stringa di testo cifrata così composta:
+Il client deve generare un uuid4v e memorizzarlo localmente insieme ad un timestamp per le verifiche al ritorno di autenticazione.
+Generato l'uuidv4 deve cifrare con la chiave condivisa con il client il seguente parametro
 
 ```
 appId;uuidv4
 ```
 
-##################### da modificare ----- OBSOLETO ---------------------------- ###########################
+poi generare un link per l'accesso al gateway così impostato:
 
+
+```
+https://GATEWAY_URL/gw-auth.php?appId=app01&data=CgN....Yq
+```
+
+L'utente cliccando sul link si porta sul gateway di autenticazione
+
+#### PHP codice di esempio per la generazione dei dati
 
 Il codice PHP per la generazione del parametro:
 
 ```
-$landingPage = "http://app01/auth-landing.php";
-$ts = date("YmdHis", time() - date("Z"));
-
-$fp=fopen("app01.pem","r");
-$private_key_string=fread($fp,8192);
-fclose($fp);
-
-openssl_private_encrypt($ts . ";" . $landingPage,$ts_crypted,$private_key_string);
-
+$uuid4 = Uuid::uuid4();
+$uuid4String = $uuid4->toString();
+$method = "aes-256-cbc";
+$key_string="__CHIAVESUPERSEGRETA__CHIAVESU__";
+$appId = "app01";
+$ts = $appId . ";" . $uuid4String;
+$iv_length = openssl_cipher_iv_length($method); 
+$iv = random_str($iv_length);
+$ts_crypted = openssl_encrypt($ts, $method, $key_string, $options=0, $iv);
 $b64_ts_crypted =  Base64Url::encode($ts_crypted);
-
-$gwURL = "https://GATEWAY_URL?auth.php?app01=" . $b64_ts_crypted;
-```					
-
+$url  = "gw-auth.php?appId=" . $appId ."&data=" . $iv . $b64_ts_crypted; 
+```
 
 #### Client modalità di gestione della risposta di autenticazione
 
 Una volta richiamato il gateway, l'autenticazione procederà verso FEDERA o SPID a seconda della scelta e terminerà verso la url del client valorizzata nei parametri di richiesta.
 
-Seguendo l'esempio di app01, ad autenticazione termina il gateway invierà una risposta al service provider come qui di seguito:
+Seguendo l'esempio di app01, ad autenticazione terminata il gateway invierà una risposta al service provider come qui di seguito:
 
 ```
 http://app01/auth-landing.php?authenticatedUser=r5nb4.....W0CppJ
 ```
 
-Il parametro authenticatedUser è cifrato con il certificato pubblico del client e contiene una stringa con le informazioni dell'utente che si è autenticato.
-Il formato della stringa con i dati è in questo formato:
+Il parametro authenticatedUser è cifrato con la chiave che conoscono solo il client ed il gateway.
+Il parametro ritornato è un stringa di valori separati da ; secondo questa struttura:
 
 ```
-authenticationMethod;authenticatingAuthority;policyLevel;trustLevel;userid;CodiceFiscale;nome;cognome;dataNascita;luogoNascita;statoNascita
+    uuidv4;
+    nameId;
+    authenticationMethod;
+    authenticatingAuthority;
+    spidCode;
+    policyLevel;
+    trustLevel;
+    userId;
+    CodiceFiscale;
+    nome;
+    cognnome;
+    dataNascita;
+    luogoNascita;
+    statoNascita
 ```
 
-Il codice PHP per decifrare il parametro *authenticatedUser*:
+
+Il client deve verificare che:
+- l'uuidv4 ritornato sia tra quelli che ha generato
+- che la richiesta non sia scaduta controllandone il time stamp
+
+
+#### Il codice PHP per decifrare il parametro *authenticatedUser*:
 
 ```
-$authenticatedUser = $_GET['authenticatedUser'];
+$authenticatedUser = substr($_GET['data'],16);
+$iv = substr($_GET['data'],0,16);
+$method = "aes-256-cbc";
+$key_string="__CHIAVESUPERSEGRETA__CHIAVESU__";
 $authenticatedUser_decoded =  Base64Url::decode($authenticatedUser);
-
-$fp=fopen("app01.pem","r");
-$private_key_string=fread($fp,8192);
-fclose($fp);
-
-openssl_private_decrypt($authenticatedUser_decoded, $authenticatedUser_decrypted, $private_key_string);
-
+if( ! $authenticatedUser_decrypted = openssl_decrypt($authenticatedUser_decoded, $method, $key_string, $options=0, $iv)) {
+	while ($msg = openssl_error_string())  echo $msg . "<br />\n";
+	die('ERRORE nella  openssl_decrypt');
+}
 $authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
 ```
+#### Client gestione del Logout
+
+Il Logout deve essere solo applicattivo. Non è gestito tramite FEDERA/SPID.
 
 ### Link utili
 
@@ -433,15 +468,21 @@ http://federazione.lepida.it/
 http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 
 
-### Alcune note sulla sicurezza
+## Sicurezza del gateway
 
 - Rimuovere il client di test una provato il funzionamento e
-  cli-start.php cli-landing.php cli-key.txt e
-  /dati/gateway-federa/config/appdemo.env
+    ```
+cli-start.php 
+cli-landing.php 
+cli-key.txt
+/dati/gateway-federa/config/appdemo.env
+  ```
 - PHP Security
     - rimuovere composer
     - patch di sicurezza PHP
+    - DA SPECIFICARE 
 - APACHE Security
+    - mod_security
 - verifica del ts
 - firewall che permette connessioni solo da origini autorizzate
 

@@ -1,4 +1,6 @@
-<html><body bgcolor="#FFAAFA">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
 <?php
 
 error_reporting(E_ALL);
@@ -84,7 +86,7 @@ $url_log = "gw-getlog.php?appId=appdemo&data=" . $iv . $b64_ts_crypted;
 
 ?>
 <b><?php echo $url ?></b>
-<h1><a href="<?php echo $url ?>">login con FEDERA TEST</a></h1>
+<h1><a href="<?php echo $url ?>">login con FEDERA</a></h1>
 
 <b><?php echo $url_fake ?></b>
 <h1><a href="<?php echo $url_fake ?>">login FAKE non passa da FEDERA (debug gateway)</a></h1>
@@ -93,10 +95,9 @@ $url_log = "gw-getlog.php?appId=appdemo&data=" . $iv . $b64_ts_crypted;
 <h1><a href="<?php echo $url_log ?>">log relativi a appdemo</a></h1>
 
 
-<h1><a href="gw-metadata.php">metadata</a></h1>
+<h1><a href="metadata.php">metadata</a></h1>
 
-</body></html>
-
+</pre>
 <?php
 
 function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')

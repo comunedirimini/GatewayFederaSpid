@@ -31,8 +31,8 @@ if ($DEBUG_GATEWAY) {
 	error_reporting(E_ALL);
 	ini_set('display_errors', '1');
 	echo '<pre>';
-	echo gettype($DEBUG_GATEWAY), "\n";
-	echo $DEBUG_GATEWAY, "\n";
+	// echo gettype($DEBUG_GATEWAY), "\n";
+	// echo $DEBUG_GATEWAY, "\n";
 	echo '<h1>GATEWAY FEDERA/SPID</h1>';
 	echo '<h1>ATTENZIONE DEBUG ENABLE - GW-AUTH.PHP</h1>';
 	echo 'HTTP_REFERER : ' . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '') . '<br/>';
