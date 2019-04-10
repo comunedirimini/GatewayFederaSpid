@@ -483,7 +483,6 @@ Inoltre
 - PHP Security
     - rimuovere composer
     - patch di sicurezza PHP
-    - RIMUOVERE COMPOSER dalla cartella 
     - php.ini expose_php=Off 
     - php.ini file_uploads=Off
     - php.ini allow_url_fopen=Off
