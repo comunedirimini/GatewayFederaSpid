@@ -470,17 +470,25 @@ http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-su
 
 ## Sicurezza del gateway
 
-- Rimuovere il client di test una provato il funzionamento e
-    ```
+- Rimuovere il client di test una provato il funzionamento e rimuovere i seguenti files:
+
+```
 cli-start.php 
 cli-landing.php 
 cli-key.txt
 /dati/gateway-federa/config/appdemo.env
   ```
+Inoltre 
+
 - PHP Security
     - rimuovere composer
     - patch di sicurezza PHP
-    - DA SPECIFICARE 
+    - RIMUOVERE COMPOSER dalla cartella 
+    - php.ini expose_php=Off 
+    - php.ini file_uploads=Off
+    - php.ini allow_url_fopen=Off
+    - php.ini disable_functions = system, exec, shell_exec, passthru, phpinfo, show_source, highlight_file, popen, proc_open, fopen_with_path, dbmopen, dbase_open, putenv, move_uploaded_file, chdir, mkdir, rmdir, chmod, rename, filepro, filepro_rowcount, filepro_retrieve, posix_mkfifo
+
 - APACHE Security
     - mod_security
 - verifica del ts
