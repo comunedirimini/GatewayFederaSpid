@@ -7,21 +7,13 @@ Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di rest
 La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard AES (https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 
 
-aes-256-cbc
 
-AES
-Key da 256bit
-cbc
-quanto è sicura?
+AES Key da 256bit cbc quanto è sicura?
 
 - https://www.eetimes.com/document.asp?doc_id=1279619#
 - https://en.m.wikipedia.org/wiki/Advanced_Encryption_Standard
 - https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
 
-openssl_encrypt($ts, $method, $key_string, $options=0, $iv);
-
-* AES per migliorare le prestazioni
-* La chiave (stringa lunga 32 caratteri) sarà comunicata dal GW all'applicazione che la utilizzerà per inviare le richieste e ricevere i dati di autenticazione.
 
 Il gateway è stato sviluppato in linguaggio PHP.
 
@@ -34,7 +26,7 @@ Il gateway è stato sviluppato in linguaggio PHP.
 - [Base64UrlSafe](https://github.com/Spomky-Labs/base64url)
 - [Monolog](https://github.com/Seldaek/monolog)
 
-### Installazione e configurazione Gateway
+## Installazione e configurazione Gateway
 
 Da ora in avanti indicherò come *wwwroot* la cartella di installazione del gateway
 
@@ -323,19 +315,21 @@ Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 - Disabilitare il DEBUG
 - Impostare eventuale dati in *index.php* (home page gateway)
 
-## Integrazione client - introduzione
+## Integrazione client - Sviluppo e configurazione
 
 Il flusso operativo client gateway avviene in questo modo
 
 - si genera una chiave segreta lunga 32 byte simmetrica che dovranno conoscere client e server per la cifrare alcuni parametri di comunicazione
-- deve essere configurato su gateway il servizio di integrazione con nome_servizio e chiave_cifratura
-- il client prepara la richiesta di accesso al gateway con questi passi
+- deve essere configurato su gateway il servizio di integrazione con nome_servizio e chiave_cifratura e pagina dove ritornare all'applicazione il risultato dell'autenticazione
+- il client prepara la richiesta di accesso al gateway 
+- il gateway invia la richiesta a SPID/FEDERA
+- se l'autenticazione ha un esito positivo ritorna alla url richiesta i dati dell'autenticazione
 
 ### Configurazione del Client per l'integrazione con il gateway
 
-Per accedere alle funzionalità del gateway le richieste del client devono essere autenticate. 
-Il metodo di sicurezza utilizzato è AES
-Viene generata sul gateway una chiave di dimensione 32 caratteri; la chiave viene consegnata al client per cifrare le richieste di autenticazione.
+Per accedere alle funzionalità del gateway le richieste del client devono essere cifrate. 
+Il metodo di sicurezza utilizzato è AES.
+Viene generata una chiave di dimensione 32 caratteri; la chiave viene consegnata al client per cifrare le richieste di autenticazione.
 
 #### Modalità di integrazione fra client e gateway
 
@@ -373,7 +367,9 @@ Per poter effettuare una richiesta di autenticazione al gateway il client deve i
 ```
 nomeServizioIntegrazione=PARAMETRI_CIFRATI
 ```
-Il client deve generare un uuid4v e memorizzarlo localmente insieme ad un timestamp per le verifiche al ritorno di autenticazione.
+## Sicurezza del client
+
+> Il client deve generare un uuid4v e memorizzarlo localmente insieme ad un timestamp per le verifiche al ritorno di autenticazione.
 Generato l'uuidv4 deve cifrare con la chiave condivisa con il client il seguente parametro
 
 ```
@@ -389,7 +385,7 @@ https://GATEWAY_URL/gw-auth.php?appId=app01&data=CgN....Yq
 
 L'utente cliccando sul link si porta sul gateway di autenticazione
 
-#### PHP codice di esempio per la generazione dei dati
+#### Codice PHP di esempio per la generazione della richiesta di accesso al gateway
 
 Il codice PHP per la generazione del parametro:
 
@@ -437,13 +433,15 @@ Il parametro ritornato è un stringa di valori separati da ; secondo questa stru
     statoNascita
 ```
 
+## Nota di SICUREZZA per il client
 
-Il client deve verificare che:
-- l'uuidv4 ritornato sia tra quelli che ha generato
+Il client DEVE VERIFICARE, prima di procedere all'autenticazione che:
+
+- l'uuidv4 ritornato sia tra quelli che ha generato prima di inviare la richiesta
 - che la richiesta non sia scaduta controllandone il time stamp
 
 
-#### Il codice PHP per decifrare il parametro *authenticatedUser*:
+#### Codice PHP per decifrare il parametro *authenticatedUser*:
 
 ```
 $authenticatedUser = substr($_GET['data'],16);

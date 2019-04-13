@@ -1,6 +1,3 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
 <?php
 
 error_reporting(E_ALL);
@@ -16,6 +13,8 @@ echo "<pre>";
 
 echo "<h1>Client test gateway per autenticazione verso FEDERA SPID</h1>";
 echo "<br>";
+
+print_r($_SERVER);
 
 // generazione uuid4 per tracciare il flusso di autenticazione
 // il client lo dovrà memorizzare per riconoscere l'autenticità
