@@ -468,7 +468,7 @@ http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-su
 
 ## Sicurezza del gateway
 
-- Rimuovere il client di test una provato il funzionamento e rimuovere i seguenti files:
+> Rimuovere il client di test e rimuovere i seguenti files:
 
 ```
 cli-start.php 
