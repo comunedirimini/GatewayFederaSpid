@@ -2,6 +2,22 @@
 
 Il gateway di autenticazione permette di implementare un livello di astrazione fra le applicazioni (SP) e l'implementazione dell'interfacciamento con il provider di identità digitali (IdP).
 
+[Introduzione](#Introduzione)
+
+[Installazione e configurazione Gateway](#Installazione-e-configurazione-Gateway)
+
+[Integrazione client](#Integrazione-client)
+
+[Note sulla sicurezza](#Note-sulla-sicurezza)
+
+[Link utili](#link-utili)
+
+[Informazioni](#informazioni)
+
+
+
+# Introduzione
+
 Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di restituire all' SP solo i dati dell'eventuale utente autenticato.
 
 La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard AES (https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
@@ -315,7 +331,7 @@ Il gateway è configurato è possibile richiedere l'integrazione a FEDERA.
 - Disabilitare il DEBUG
 - Impostare eventuale dati in *index.php* (home page gateway)
 
-## Integrazione client - Sviluppo e configurazione
+## Integrazione client
 
 Il flusso operativo client gateway avviene in questo modo
 
@@ -459,14 +475,7 @@ $authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
 
 Il Logout deve essere solo applicattivo. Non è gestito tramite FEDERA/SPID.
 
-### Link utili
-
-http://federazione.lepida.it/
-
-http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
-
-
-## Sicurezza del gateway
+## Note sulla sicurezza
 
 > Rimuovere il client di test e rimuovere i seguenti files:
 
@@ -490,6 +499,12 @@ Inoltre
     - mod_security
 - verifica del ts
 - firewall che permette connessioni solo da origini autorizzate
+
+### Link utili
+
+http://federazione.lepida.it/
+
+http://www.agid.gov.it/sites/default/files/documentazione/spid-avviso-n6-note-sul-dispiegamento-di-spid-presso-i-gestori-di-servizi-v1.pdf
 
 ## Informazioni
 
