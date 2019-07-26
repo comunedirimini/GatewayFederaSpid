@@ -18,6 +18,8 @@ Il gateway di autenticazione permette di implementare un livello di astrazione f
 
 # Introduzione
 
+L'integrazione con i sistemi di autenticazione SPID e FEDERA da parte degli applicativi dell'ente può risultare dispendiosa, quindi lo sviluppo di un gateway facilita ed ottimizza questa operazione.
+
 Il gateway si occuperà di gestire tutte le interazioni SAML con l'Idp e di restituire all' SP solo i dati dell'eventuale utente autenticato.
 
 La sicurezza tra il SP ed il Gateway è garantita da una comunicazione criptata basata sullo standard AES (https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
