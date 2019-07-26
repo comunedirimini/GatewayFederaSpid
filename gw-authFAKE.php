@@ -1,3 +1,7 @@
+<link rel="stylesheet" href="https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css">
+<h1>Client test gateway per autenticazione verso FEDERA SPID</h1>
+
+
 <?php
 
 echo "<h4>***FAKE GATEWAY for TEST SERVICE PROVIDER ***</H4>";
@@ -62,8 +66,9 @@ $iv = substr($getPar['data'],0,16);
 $appId = $getPar['appId'];
 $b64_ts_crypted = substr($getPar['data'],16);
 
+
 if (strlen($appId) > 8) {
-	$log->error('appId too long max 8!', $appId);
+	$log->error('appId too long max 8!');
 	die('A_ERROR2LEN');
 } 
 
@@ -221,8 +226,12 @@ if ($DEBUG_GATEWAY) { echo "autenticationData_crypted_b64:"; echo $autentication
 
 $url2redirect = $GATEWAY_RETURN_URL . '?data=' . $iv . $autenticationData_crypted_b64;
 
+echo "</pre>";
 
-echo $url2redirect; echo "<br>"; echo "<h1><a href=\"" . $url2redirect . "\">FAKE FEDERA HA RISPOSTO RITORNO AL CLIENT</a></h1>"; 
+echo $url2redirect; 
+echo "<br>"; 
+echo "<h1><a class=\"button primary\" href=\"" . $url2redirect . "\">FAKE FEDERA HA RISPOSTO RITORNO AL CLIENT</a></h1>"; 
+
 
 
 // utility ---------------------------------------------------------------------------------------------

@@ -13,7 +13,9 @@ use Monolog\Handler\NativeMailerHandler;
 $dotenv = Dotenv\Dotenv::create('/dati/gateway-federa/', 'gw-config.env');
 $dotenv->load();
 
-$DEBUG_GATEWAY = (getenv('DEBUG_GATEWAY') === 'true'? true : false);
+// $DEBUG_GATEWAY = (getenv('DEBUG_GATEWAY') === 'true'? true : false);
+
+$DEBUG_GATEWAY = false;
 $LOG_FILE = $_ENV['LOG_FILE'];
 $LOG_PATH = $_ENV['LOG_PATH'];
 $CONFIG_PATH = $_ENV['CONFIG_PATH'];
@@ -76,7 +78,7 @@ $appId = $getPar['appId'];
 $b64_ts_crypted = substr($getPar['data'],16);
 
 if (strlen($appId) > 8) {
-	$log->error('appId too long max 8!', $appId);
+	$log->error('appId too long max 8!');
 	die('A_ERROR2LEN');
 } 
 

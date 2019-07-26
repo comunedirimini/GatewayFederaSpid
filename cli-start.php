@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css">
+<h1>Client test gateway per autenticazione verso FEDERA SPID</h1>
+
 <?php
 
 error_reporting(E_ALL);
@@ -10,9 +13,6 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 echo "<pre>";
-
-echo "<h1>Client test gateway per autenticazione verso FEDERA SPID</h1>";
-echo "<br>";
 
 print_r($_SERVER);
 
@@ -67,7 +67,7 @@ $b64_ts_crypted =  Base64Url::encode($ts_crypted);
 echo "<b>dati cifrati b64: </b>"; 
 echo $b64_ts_crypted; echo "<br>";
                     
-echo "<h4>decrypt per verifica:</h4>"; echo "<br>";
+echo "<b>decrypt per verifica:</b>"; echo "<br>";
 
 // $ts_crypted_out = base64_decode($b64_ts_crypted);
 $ts_crypted_out = Base64Url::decode($b64_ts_crypted);
@@ -84,19 +84,22 @@ $url_fake = "gw-authFAKE.php?appId=appdemo&data=" . $iv . $b64_ts_crypted;
 $url_log = "gw-getlog.php?appId=appdemo&data=" . $iv . $b64_ts_crypted;
 
 ?>
-<b><?php echo $url ?></b>
-<h1><a href="<?php echo $url ?>">login con FEDERA</a></h1>
-
-<b><?php echo $url_fake ?></b>
-<h1><a href="<?php echo $url_fake ?>">login FAKE non passa da FEDERA (debug gateway)</a></h1>
-
-<b><?php echo $url_log ?></b>
-<h1><a href="<?php echo $url_log ?>">log relativi a appdemo</a></h1>
-
-
-<h1><a href="metadata.php">metadata</a></h1>
-
 </pre>
+
+
+<a  class="button primary" href="<?php echo $url ?>">login con FEDERA</a>
+<pre><?php echo $url ?></pre>
+
+<a class="button primary" href="<?php echo $url_fake ?>">login FAKE non passa da FEDERA (debug gateway)</a>
+<pre><?php echo $url_fake ?></pre>
+
+<a class="button primary" href="<?php echo $url_log ?>">log relativi a appdemo</a>
+<pre><?php echo $url_log ?></pre>
+
+
+
+<a class="button primary" href="metadata.php">metadata</a>
+
 <?php
 
 function random_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')

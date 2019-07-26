@@ -1,0 +1,9 @@
+{
+    "require": {
+        "spomky-labs/base64url": "^1.0",
+        "monolog/monolog": "^1.23",
+        "onelogin/php-saml": "^2.13",
+        "ramsey/uuid": "^3.7",
+        "vlucas/phpdotenv": "^3.3"
+    }
+}

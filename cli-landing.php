@@ -1,4 +1,8 @@
-<html><body bgcolor="#FFAAFA">
+
+<link rel="stylesheet" href="https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css">
+<h1>Autenticazione effettuata</h1>
+
+
 <?php
 
 error_reporting(E_ALL);
@@ -9,9 +13,7 @@ require __DIR__ . '/vendor/autoload.php';
 use Base64Url\Base64Url;
 
 echo "<pre>";
-echo "<h1>LANDING PAGE CLIENT ...</h1>";
-echo "<p>Riceve la risposta dal gateway cifrata la decifra ed utilizza i dati per il logon</p>";
-echo "<br>";
+
 
 
 if ( !$_GET['data'] ) {
@@ -22,8 +24,6 @@ if ( !$_GET['data'] ) {
 
 $authenticatedUser = substr($_GET['data'],16);
 $iv = substr($_GET['data'],0,16);
-
-
 
 
 $method = "aes-256-cbc";
@@ -52,16 +52,24 @@ if( ! $authenticatedUser_decrypted = openssl_decrypt($authenticatedUser_decoded,
 echo $authenticatedUser_decrypted;
 echo "<br>";
 
-
 $authenticatedDataArray = explode(";", $authenticatedUser_decrypted);
+echo "</pre>";
 
-echo "<h1>Risposta dal gw .. dati utente ...</h1>";
+// print_r($authenticatedDataArray);
 
-print_r($authenticatedDataArray);
+$data = $authenticatedDataArray;
+$html = "<table><caption>FEDERA/SPID dati autenticazione</caption><tbody>";
+foreach($data as $row) {
+    $html .= "<tr><td>" . $row . "</td></tr>";
+}
+$html .= "</tbody></table>";
+
+echo $html;
 
 ?>
 
-<a href="cli-start.php">START</a>
+<a class="button primary" href="cli-start.php">RITORNO AL LOGIN</a>
+
+<a class="button primary" href="gw-logout.php">LOGOUT</a>
 
 
-</body></html>
