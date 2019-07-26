@@ -7,7 +7,7 @@ name: Gateway Federa SPID
 releaseDate: '2019-07-26'
 url: 'https://github.com/comunedirimini/GatewayFederaSpid'
 applicationSuite: GatewayFederaSpid
-softwareVersion: true
+softwareVersion: '1.0' 
 developmentStatus: stable
 softwareType: standalone/web
 platforms:
@@ -18,7 +18,7 @@ usedBy:
   - Comune di Rimini
 categories:
   - application-development
-logo: 'https://www.comune.rimini.it/logo_rn_0.png'
+logo: 'logo/logo_rn_0.jpg'
 maintenance:
   type: none
   contacts:
